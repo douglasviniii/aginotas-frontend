@@ -101,6 +101,7 @@ export function Financial() {
             value: parseFloat(value),
             dueDate: startDate,
             status: "A Receber",
+            typeofcharge: "Receber Agora",
       })       
     } else if (paymentType === "installment") {
       for (let i = 0; i < installments; i++) {
@@ -112,6 +113,7 @@ export function Financial() {
           value: parseFloat((value / installments).toFixed(0)),
           dueDate: due.toISOString().split("T")[0],
           status: "Parcelado",
+          typeofcharge: "Parcelado",
         })
       }
     } else if (paymentType === "recurring") {
@@ -131,6 +133,7 @@ export function Financial() {
           value: parseFloat(value),
           dueDate: startDate,
           status: "Pago",
+          typeofcharge: "Pago",
       })
     }
 
@@ -157,15 +160,14 @@ export function Financial() {
     );
   });
 
-
   const chartData = [
     {
       name: "A Receber",
-      total: filteredReceivables2.filter((r) => r.status === "A Receber").reduce((sum, r) => sum + r.value, 0),
+      total: filteredReceivables2.filter((r) => r.typeofcharge === "Receber Agora").reduce((sum, r) => sum + r.value, 0),
     },
     {
       name: "Pago",
-      total: filteredReceivables2.filter((r) => r.status === "Pago").reduce((sum, r) => sum + r.value, 0),
+      total: filteredReceivables2.filter((r) => r.typeofcharge === "Pago").reduce((sum, r) => sum + r.value, 0),
     },
     {
       name: "Recorrente",
@@ -173,15 +175,20 @@ export function Financial() {
     },
     {
       name: "Parcelamentos",
-      total: filteredReceivables2.filter((r) => r.status === "Parcelado").reduce((sum, r) => sum + r.value, 0),
+      total: filteredReceivables2.filter((r) => r.typeofcharge === "Parcelado").reduce((sum, r) => sum + r.value, 0),
     },
     {
       name: "Em atraso",
-      total: (agrupado['Em Atraso'] || []).filter((r) => {
-        const date = new Date(r.dueDate);
-        return date.getMonth() === selectedMonth;
-      }).length,
-    },
+      total: filteredReceivables2
+        .filter((r) => {
+          const dueDate = new Date(r.dueDate);
+          const today = new Date();
+          dueDate.setHours(0, 0, 0, 0);
+          today.setHours(0, 0, 0, 0);
+          return dueDate < today && r.status !== "Pago";
+        })
+        .reduce((sum, r) => sum + Number(r.value), 0),
+    }
   ];
 
   const handleMarkAsPaid = async (id: string) => {
