@@ -835,7 +835,7 @@ export function Financial() {
                             </p>
                             {r.typeofcharge === "Recorrente" ? (
                               <p>
-                              <strong>Dia:</strong> {new Date(r.dueDate).getDate()}
+                              <strong>Dia:</strong> {new Date(r.dueDate).getUTCDate()}
                               </p>
                             ):(
                             <p>
