@@ -868,7 +868,9 @@ export function Financial() {
                               {r.paymentHistory?.length > 0 ? (
                                 r.paymentHistory.map((item, index) => (
                                   <div key={index} style={{ marginBottom: '8px' }}>
-                                    <div><strong>Data:</strong> {new Date(item.date).toLocaleDateString()}</div>
+                                      <strong>Data:</strong> {new Date(item.date).toLocaleDateString('pt-BR', {
+                                        timeZone: 'UTC'
+                                      })}
                                     <div><strong>Status:</strong> {item.status}</div>
                                   </div>
                                 ))
