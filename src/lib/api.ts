@@ -867,6 +867,38 @@ export const api = {
     return response.json();
   },
 
+  async Update_IsDesactivated(id: string, value: boolean) {
+    const response = await fetch(`${API_URL}/financial/isdesactivated/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${Cookies.get('token')}`,
+      },
+      body: JSON.stringify({isDesactivated:value}),
+    });
+
+    if (!response.ok) {
+      throw new Error('Falha ao dar baixa no recibo');
+    }
+
+    return response.json();
+  },
+
+  async LastMonthPaid(id: string) {
+    const response = await fetch(`${API_URL}/financial/lastmonthpaid/${id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Falha');
+    }
+
+    return response.json();
+  },  
+
   async Delete_Receive(id: string) {
     const response = await fetch(`${API_URL}/financial/delete/${id}`, {
       method: 'DELETE',

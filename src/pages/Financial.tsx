@@ -113,18 +113,15 @@ export function Financial() {
         })
       }
     } else if (paymentType === "recurring") {
-        for (let i = 0; i < 12; i++) {
-          const due = new Date(baseDate);
-          due.setMonth(due.getMonth() + i);
-    
+          const due = new Date(baseDate);  
           await api.Create_Receive({
             customer: selectedCustomer,
             description:description,
             value: parseFloat(value),
             dueDate: due.toISOString().split("T")[0],
             status: "Recorrente",
+            typeofcharge: "Recorrente",
           })
-        }
     } else if (paymentType === "paid") {
       await api.Create_Receive({
           customer: selectedCustomer,
@@ -188,6 +185,33 @@ export function Financial() {
       setLoading(true);
       const status = 'Pago';
       await api.Update_Receive(id , status);
+      toast.success('Operação realizada com sucesso!');
+      Data();
+      setLoading(false);
+    } catch (error) {
+      toast.error('Erro ao realizar operação');
+      return;
+    }
+  }
+
+  const handleLastMonthPaid = async (id: string) => {
+    try {
+      setLoading(true);
+      await api.LastMonthPaid(id);
+      toast.success('Operação realizada com sucesso!');
+      Data();
+      setLoading(false);
+    } catch (error) {
+      toast.error('Erro ao realizar operação');
+      return;
+    }
+  }
+
+  const handleDesactivated = async (id: string, value: boolean) => {
+    try {
+      setLoading(true);
+
+      await api.Update_IsDesactivated(id, !value);
       toast.success('Operação realizada com sucesso!');
       Data();
       setLoading(false);
@@ -352,34 +376,7 @@ export function Financial() {
   return (
     <div className="max-w-6xl mx-auto p-6">
 
-{/*     <div className="flex gap-4 mb-6">
-      <button
-        onClick={() => setView("dashboard")}
-        className={`px-4 py-2 rounded font-medium ${
-          view === "dashboard" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
-        }`}
-      >
-        Dashboard
-      </button>
-      <button
-        onClick={() => setView("payments")}
-        className={`px-4 py-2 rounded font-medium ${
-          view === "payments" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
-        }`}
-      >
-        Pagamentos
-      </button>
-      <button
-        onClick={() => setView("receipts")}
-        className={`px-4 py-2 rounded font-medium ${
-          view === "receipts" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
-        }`}
-      >Recebimentos
-      </button>
-    
-    </div> */}
-
-<div className="mb-6">
+    <div className="mb-6">
       {/* Versão Desktop - sempre visível */}
       <div className="hidden md:flex gap-4">
         <button
@@ -774,14 +771,31 @@ export function Financial() {
                             {r.customer.name || r.customer.razaoSocial}
                           </p>
                           <div className="flex gap-2">
-                            {r.status !== "Pago" && (
+                          {r.typeofcharge === "Recorrente" && r.isDesactivated === false ? (
+                              <button
+                                onClick={() => handleLastMonthPaid(r._id)}
+                                className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-all duration-200"
+                              >
+                                Pago último mês
+                              </button>
+                          ) : (                          
+                            r.status !== "Pago" && r.typeofcharge !== "Recorrente" && (
                               <button
                                 onClick={() => handleMarkAsPaid(r._id)}
                                 className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-all duration-200"
                               >
                                 Pago
                               </button>
-                            )}
+                            )
+                          )}
+                          {r.typeofcharge === "Recorrente" && (
+                              <button
+                              onClick={() => handleDesactivated(r._id, r.isDesactivated)}
+                              className="px-3 py-1 text-sm bg-orange-600 text-white rounded hover:bg-orange-700 transition-all duration-200"
+                            >
+                              Desativar/Ativar
+                            </button>                            
+                          )}
                             <button
                               onClick={() => handleDelete(r._id)}
                               className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition-all duration-200"
@@ -801,15 +815,50 @@ export function Financial() {
                             <p>
                               <strong>Valor:</strong> R$ {r.value.toFixed(2)}
                             </p>
+                            {r.typeofcharge === "Recorrente" ? (
+                              <p>
+                              <strong>Dia:</strong> {new Date(r.dueDate).getDate()}
+                              </p>
+                            ):(
                             <p>
                               <strong>Vencimento:</strong> {r.dueDate}
                             </p>
+                            )}
                             <p>
                               <strong>Descrição:</strong> {r.description}
                             </p>
                             <p>
-                              <strong>Status:</strong> {r.status}
+                              <strong>Tipo:</strong> {r.status}
                             </p>
+                            {r.typeofcharge === "Recorrente" && (
+                              <p>
+                                <strong>Status:</strong> {r.isDesactivated ? "Desativado" : "Ativo"}
+                              </p>                            
+                            )}                             
+                            {r.typeofcharge === "Recorrente" && (
+                              <p>
+                                <strong>Pagamento:</strong> {r.paymentHistory?.filter(p => p.status === "Pago").length} de {r.paymentHistory?.length} parcelas pagas
+                              </p>                            
+                            )}   
+                            {r.typeofcharge === "Recorrente" && (
+                              <p>
+                                <strong>Total pago:</strong> R$ {(r.paymentHistory?.filter(p => p.status === "Pago").length * r.value).toFixed(2)}
+                              </p>                            
+                            )}                          
+                            {r.typeofcharge === "Recorrente" && (
+                              <div style={{ maxHeight: '150px', overflowY: 'auto', border: '1px solid #ccc', padding: '8px', borderRadius: '8px' }}>
+                              {r.paymentHistory?.length > 0 ? (
+                                r.paymentHistory.map((item, index) => (
+                                  <div key={index} style={{ marginBottom: '8px' }}>
+                                    <div><strong>Data:</strong> {new Date(item.date).toLocaleDateString()}</div>
+                                    <div><strong>Status:</strong> {item.status}</div>
+                                  </div>
+                                ))
+                              ) : (
+                                <div>Nenhum histórico disponível.</div>
+                              )}
+                            </div>                              
+                            )}
                           </div>
                         )}
                       </div>
@@ -847,6 +896,32 @@ export function Financial() {
   }
 ];   */
 
+{/*     <div className="flex gap-4 mb-6">
+      <button
+        onClick={() => setView("dashboard")}
+        className={`px-4 py-2 rounded font-medium ${
+          view === "dashboard" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
+        }`}
+      >
+        Dashboard
+      </button>
+      <button
+        onClick={() => setView("payments")}
+        className={`px-4 py-2 rounded font-medium ${
+          view === "payments" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
+        }`}
+      >
+        Pagamentos
+      </button>
+      <button
+        onClick={() => setView("receipts")}
+        className={`px-4 py-2 rounded font-medium ${
+          view === "receipts" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
+        }`}
+      >Recebimentos
+      </button>
+    
+    </div> */}
 
 
 /*       <div>
