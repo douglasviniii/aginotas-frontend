@@ -157,6 +157,7 @@ export function Financial() {
     );
   });
 
+
   const chartData = [
     {
       name: "A Receber",
@@ -168,7 +169,7 @@ export function Financial() {
     },
     {
       name: "Recorrente",
-      total: filteredReceivables2.filter((r) => r.status === "Recorrente").reduce((sum, r) => sum + r.value, 0),
+      total: filteredReceivables2.filter((r) => r.typeofcharge === "Recorrente").reduce((sum, r) => sum + r.value, 0),
     },
     {
       name: "Parcelamentos",
