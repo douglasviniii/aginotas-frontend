@@ -23,9 +23,25 @@ import { SubscriptionManagement } from './pages/SubscriptionManagement';
 import { DetalhesNfse } from './pages/DetalhesNfse';
 import { Financial } from './pages/Financial';
 import { AdminConfig } from './pages/AdminConfig';
-
+import { isTokenExpired } from './utils/auth';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 function App() {
+
+  useEffect(() => {
+    const userToken = Cookies.get('token');
+    const adminToken = Cookies.get('admin_token');
+
+    const token = userToken || adminToken;
+
+    if (!token || isTokenExpired(token)) {
+      Cookies.remove('token');
+      Cookies.remove('admin_token');
+    }
+  }, []);
+
   return (
     <BrowserRouter>
       <Toaster position="top-right" />

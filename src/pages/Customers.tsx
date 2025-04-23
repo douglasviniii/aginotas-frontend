@@ -8,6 +8,9 @@ import logomedianeira from '../public/medianeira.jpg';
 import logodelvind from '../public/delvind.jpg';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import fs from 'fs';
+import { useNavigate } from 'react-router-dom';
+import { isTokenExpired } from '../utils/auth.ts';
+import Cookies from "js-cookie";
 
 interface Customer {
   _id: string;
@@ -855,8 +858,24 @@ const toggleMenu = (id:any) => {
       setCustomers(data || []);
       const cnaes = await api.Find_CNAES_ELOTECH();
       setCnaes(cnaes || []);
+
+      const navigate = useNavigate();
+      
+      useEffect(() => {
+        const userToken = Cookies.get('token');
+        const adminToken = Cookies.get('admin_token');
+        
+        const token = userToken || adminToken;
+        
+        if (!token || isTokenExpired(token)) {
+          Cookies.remove('token');
+          Cookies.remove('admin_token');
+          navigate('/login');
+        }
+        }, [navigate]); 
+
     } catch (error) {
-      toast.error('Server error');
+      console.log(error);
     } finally {
       setIsLoading(false);
     }

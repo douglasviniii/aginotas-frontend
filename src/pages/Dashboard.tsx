@@ -12,6 +12,10 @@ import { saveAs } from 'file-saver';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import fs from 'fs';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
+import { isTokenExpired } from '../utils/auth';
+import Cookies from "js-cookie";
+
 
 dayjs.extend(customParseFormat);
 dayjs.extend(isBetween);
@@ -53,6 +57,22 @@ export function Dashboard() {
     setCustomer(datacustomers);
     const datacustomeractive = await api.find_customers_actives();
     setCustomerActive(datacustomeractive);
+
+    const navigate = useNavigate();
+
+    useEffect(() => {
+      const userToken = Cookies.get('token');
+      const adminToken = Cookies.get('admin_token');
+  
+      const token = userToken || adminToken;
+  
+      if (!token || isTokenExpired(token)) {
+        Cookies.remove('token');
+        Cookies.remove('admin_token');
+        navigate('/login');
+      }
+    }, [navigate]);
+
   } 
 
   useEffect(() => {
@@ -137,82 +157,7 @@ export function Dashboard() {
     saveAs(blob, fileName);
   }
 
-
-/*   async function criarNotaFiscal(customer: any) {
-    //console.log(customer);
-
-    const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage([595.28, 841.89]); // A4 em pontos
-  
-    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-    const fontSize = 10;
-  
-    const drawText = (text: string, x: number, y: number, size = fontSize) => {
-      page.drawText(text, {
-        x,
-        y,
-        size,
-        font,
-        color: rgb(0, 0, 0),
-      });
-    };
-  
-    // Cabeçalho
-    drawText('MUNICIPIO DE MEDIANEIRA - Nota Fiscal de Serviços Eletrônica', 150, 800, 12);
-    drawText(`Número: ${customer.data.Rps.IdentificacaoRps.Numero}`, 50, 780);
-    drawText(`Data Prestação: ${dayjs(customer.data.Rps.DataEmissao).format('DD/MM/YYYY')}`, 250, 780);
-    drawText(`Autenticidade: ${customer.xml.match(/<ns2:CodigoVerificacao>(.*?)<\/ns2:CodigoVerificacao>/)?.[1] || ''}`, 450, 780);
-    drawText('SITE AUTENTICIDADE: https://medianeira.oxy.elotech.com.br/iss/autenticar-documento-fiscal', 50, 765, 8);
-    
-    // Dados do prestador
-    drawText('DADOS DO PRESTADOR DO SERVIÇO', 50, 740, 11);
-    drawText(`Nome/Razão Social: ${customer.user.name}`, 50, 725);
-    drawText(`CNPJ: ${customer.user.cnpj}`, 50, 710);
-    drawText(`Insc. Municipal: ${customer.user.inscricaoMunicipal} | Regime Fiscal: Simples Nacional`, 50, 695);
-    drawText(`Endereço: ${customer.user.endereco || 'N/A'}`, 50, 680);
-    drawText(`Município/UF: ${customer.user.cidade}-${customer.user.estado} | CEP: ${customer.user.cep || 'N/A'}`, 50, 665);
-    drawText(`Fone: ${customer.user.phone || 'N/A'} | E-mail: ${customer.user.email}`, 50, 650);
-    
-    // Dados do tomador
-    drawText('DADOS DO TOMADOR DO SERVIÇO', 50, 625, 11);
-    drawText(`Nome/Razão Social: ${customer.customer.razaoSocial || customer.customer.name }`, 50, 610);
-    drawText(`CPF/CNPJ: ${customer.customer.cnpj !== 'undefined' ? customer.customer.cnpj : customer.customer.cpf !== 'undefined' ? customer.customer.cpf : 'N/A'}`, 50, 595);
-    drawText(`Endereço: ${customer.customer.address.street}, ${customer.customer.address.number} - ${customer.customer.address.neighborhood}`, 50, 580);
-    drawText(`Município/UF: ${customer.customer.address.city}-${customer.customer.address.state} | CEP: ${customer.customer.address.zipCode}`, 50, 565);
-    drawText(`Fone: ${customer.customer.phone} | E-mail: ${customer.customer.email}`, 50, 550);
-    
-    // Serviço
-    drawText('DEFINIÇÃO DO SERVIÇO', 50, 525, 11);
-    drawText(`Item da Lista de Serviços da LC nº 116/03: ${customer.data.Rps.Servico.ListaItensServico[0].ItemListaServico} ${customer.data.Rps.Servico.ListaItensServico[0].Descricao}`, 50, 510);
-    drawText(`CNAE: ${customer.data.Rps.Servico.ListaItensServico[0].CodigoCnae} | Competência: ${dayjs(customer.data.Rps.Competencia).format('MM/YYYY')}`, 50, 495);
-    drawText(`Local da Prestação: ${customer.user.cidade}-${customer.user.estado} | Situação da NFS-e: ${customer.status.toUpperCase()}`, 50, 480);
-    drawText('Natureza da Operação: EXIGÍVEL', 50, 465);
-    
-    // Discriminação
-    drawText('DISCRIMINAÇÃO DO SERVIÇO', 50, 440, 11);
-    drawText(`- ${customer.data.Rps.Servico.Discriminacao}`, 50, 425);
-    drawText(`Descrição: ${customer.data.Rps.Servico.ListaItensServico?.[0]?.Descricao || 'N/A'} | Qtde: ${(customer.data.Rps.Servico.ListaItensServico?.[0]?.Quantidade || 0).toFixed(2)} | Valor Unitário: R$ ${(customer.data.Rps.Servico.ListaItensServico?.[0]?.ValorUnitario || 0).toFixed(2)} | Valor Total: R$ ${(customer.data.Rps.Servico.Valores?.ValorServicos || 0).toFixed(2)}`, 50, 410);
-    
-    // Tributos
-    drawText('TRIBUTOS INCIDENTES', 50, 380, 11);
-    drawText(`ISSQN: R$ ${(customer.data.Rps.Servico.Valores?.ValorIss || 0).toFixed(2)} | Alíquota: ${(customer.data.Rps.Servico.Valores?.Aliquota || 0).toFixed(2)}% | Retido: ${customer.data.Rps.Servico.IssRetido === 2 ? 'Não' : 'Sim'}`, 50, 365);
-    drawText('PIS / COFINS / INSS / IR / CSLL / CPP / Impostos Federais: R$ 0,00', 50, 350);
-    
-    // Totais
-    drawText('TOTALIZAÇÃO DO DOCUMENTO FISCAL', 50, 320, 11);
-    drawText(`Base de Cálculo ISSQN: R$ ${(customer.data.Rps.Servico.Valores?.BaseCalculo || 0).toFixed(2)}`, 50, 305);
-    drawText(`Valor Total: R$ ${(customer.data.Rps.Servico.Valores?.ValorServicos || 0).toFixed(2)} | Descontos: R$ ${(customer.data.Rps.Servico.Valores?.DescontoIncondicionado || 0).toFixed(2)} | Valor Líquido: R$ ${(customer.data.Rps.Servico.Valores?.ValorLiquido || 0).toFixed(2)}`, 50, 290);
-    
-    // Assinatura
-    drawText(`Recebemos de ${customer.user.name} os serviços constantes nesta NFS-e.`, 50, 260);
-    drawText('DATA: ____/____/_____   Assinatura: ____________________________', 50, 240);
-  
-    // Salvar
-    const pdfBytes = await pdfDoc.save();
-    saveAs(new Blob([pdfBytes], { type: 'application/pdf' }), 'modelo-nota-fiscal.pdf');
-  }  */
-
-    async function criarNotaFiscalPDF (item: any) {
+  async function criarNotaFiscalPDF (item: any) {
       try {
         setLoading(true);
         await api.Export_Invoice_PDF(item);
@@ -222,9 +167,9 @@ export function Dashboard() {
         toast.error("Ocorreu um erro ao gerar o PDF");
         return;
       }
-    }
+  }
 
-    if (loading) return <div>Carregando...</div>;
+  if (loading) return <div>Carregando...</div>;
 
   return (
     <div className="space-y-6">

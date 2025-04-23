@@ -5,7 +5,9 @@ import { toast } from 'sonner';
 import { useRef } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-
+import { useNavigate } from "react-router-dom";
+import { isTokenExpired } from "../utils/auth";
+import Cookies from "js-cookie";
 
 export function Financial() {
   const [view, setView] = useState("dashboard");
@@ -274,7 +276,22 @@ export function Financial() {
     const Receipts = await api.Find_Receipts();
     setReceivables(Receipts);
     setAgrupado(agruparPorStatus(Receipts));
-    setCustomers(clientes);    
+    setCustomers(clientes);   
+    
+    const navigate = useNavigate();
+
+    useEffect(() => {
+      const userToken = Cookies.get('token');
+      const adminToken = Cookies.get('admin_token');
+  
+      const token = userToken || adminToken;
+  
+      if (!token || isTokenExpired(token)) {
+        Cookies.remove('token');
+        Cookies.remove('admin_token');
+        navigate('/login');
+      }
+    }, [navigate]);    
   }
 
   const loadReportForMonth = async (month: number) => {
