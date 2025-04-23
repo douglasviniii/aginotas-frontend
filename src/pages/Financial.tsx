@@ -135,6 +135,7 @@ export function Financial() {
     Data();
     setLoading(false);
     resetForm();
+    setView("receipts");
   };
 
   const resetForm = () => {
