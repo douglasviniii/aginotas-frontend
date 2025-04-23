@@ -906,12 +906,12 @@ export function Financial() {
                           Pago
                         </button>
                       )}
-                      <button
+{/*                       <button
                         onClick={() => handleDeactivate(boletos[0]?._id)}
                         className="text-sm px-3 py-1 rounded bg-gray-600 text-white hover:bg-gray-700"
                       >
                         Desativar
-                      </button>
+                      </button> */}
                       <button
                         onClick={() => handleDelete(boletos[0]?._id)}
                         className="text-sm px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700"
