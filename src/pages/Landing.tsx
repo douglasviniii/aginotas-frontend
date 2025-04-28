@@ -587,14 +587,14 @@ const [showCookieBanner, setShowCookieBanner] = useState(true);
 
               <div className="flex flex-col sm:flex-row justify-end gap-3 p-4 border-t border-[#334155]">
                 <a
-                  href="/manual.pdf"
+                  href={`${import.meta.env.PUBLIC_URL}/manual.pdf`}
                   download="Manual_Delvind.pdf"
                   className="bg-[#2962FF] hover:bg-[#1E50D9] text-white px-4 py-2 rounded-md flex items-center justify-center gap-2 transition-colors"
                 >
                   <FaDownload /> Baixar PDF
                 </a>
                 <a
-                  href="/manual.svg"
+                  href={`${import.meta.env.PUBLIC_URLL}/manual.svg`}
                   download="Manual_Delvind.svg"
                   className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2 transition-colors"
                 >
