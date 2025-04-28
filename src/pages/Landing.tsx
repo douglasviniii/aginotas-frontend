@@ -578,7 +578,7 @@ const [showCookieBanner, setShowCookieBanner] = useState(true);
                 {/* Visualizador do SVG/PDF - Substitua pelo seu componente real */}
                 <div className="flex justify-center items-center h-full min-h-[300px] bg-[#0f172a] rounded">
                   <iframe 
-                    src="/src/public/manual.pdf" 
+                    src="/manual.pdf" 
                     className="w-full h-[60vh] border-none"
                     title="Visualizador do Manual"
                   />
@@ -587,14 +587,14 @@ const [showCookieBanner, setShowCookieBanner] = useState(true);
 
               <div className="flex flex-col sm:flex-row justify-end gap-3 p-4 border-t border-[#334155]">
                 <a
-                  href="/src/public/manual.pdf"
+                  href="/manual.pdf"
                   download="Manual_Delvind.pdf"
                   className="bg-[#2962FF] hover:bg-[#1E50D9] text-white px-4 py-2 rounded-md flex items-center justify-center gap-2 transition-colors"
                 >
                   <FaDownload /> Baixar PDF
                 </a>
                 <a
-                  href="/src/public/manual.svg"
+                  href="/manual.svg"
                   download="Manual_Delvind.svg"
                   className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2 transition-colors"
                 >
