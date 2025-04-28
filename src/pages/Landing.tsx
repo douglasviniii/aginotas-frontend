@@ -169,24 +169,6 @@ const [showCookieBanner, setShowCookieBanner] = useState(true);
     { id: 'simplicity', label: 'Como Funciona' },
   ];
 
-  const downloadFilePDF = (filePath: string, fileName: string) => {
-    const link = document.createElement('a');
-    link.href = `${window.location.origin}${filePath}`;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  const downloadFileSVG = (filePath: string, fileName: string) => {
-    const link = document.createElement('a');
-    link.href = `${window.location.origin}${filePath}`;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
   return (
     <div className="min-h-screen bg-[#161e2e] text-white flex flex-col overflow-x-hidden" style={{ fontFamily: 'Montserrat, sans-serif' }}>   <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${isScrolled ? 'bg-[#161e2e]/95 backdrop-blur-sm shadow-lg py-[0.0rem] md:py-0 lg:py-0' : 'py-[0.0rem] md:py-0 lg:py-0'}`}>
   <div className="container mx-auto px-4 flex justify-between items-center">
@@ -596,33 +578,35 @@ const [showCookieBanner, setShowCookieBanner] = useState(true);
                 {/* Visualizador do SVG/PDF - Substitua pelo seu componente real */}
                 <div className="flex justify-center items-center h-full min-h-[300px] bg-[#0f172a] rounded">
                   <iframe 
-                    src="/manual.pdf" 
+                    src="/src/public/manual.pdf" 
                     className="w-full h-[60vh] border-none"
                     title="Visualizador do Manual"
                   />
                 </div>
               </div>
 
-                <div className="flex flex-col sm:flex-row justify-end gap-3 p-4 border-t border-[#334155]">
-                <button
-                  onClick={() => downloadFilePDF('/src/public/manual.pdf', 'Manual_Delvind.pdf')}
+              <div className="flex flex-col sm:flex-row justify-end gap-3 p-4 border-t border-[#334155]">
+                <a
+                  href="/src/public/manual.pdf"
+                  download="Manual_Delvind.pdf"
                   className="bg-[#2962FF] hover:bg-[#1E50D9] text-white px-4 py-2 rounded-md flex items-center justify-center gap-2 transition-colors"
                 >
                   <FaDownload /> Baixar PDF
-                </button>
-                <button
-                  onClick={() => downloadFileSVG('/src/public/manual.svg', 'Manual_Delvind.svg')}
+                </a>
+                <a
+                  href="/src/public/manual.svg"
+                  download="Manual_Delvind.svg"
                   className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2 transition-colors"
                 >
                   <FaDownload /> Baixar SVG
-                </button>
+                </a>
                 <button
                   onClick={() => setShowManualModal(false)}
                   className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition-colors"
                 >
                   Fechar
                 </button>
-                </div>
+              </div>
             </div>
           </div>
         )}
