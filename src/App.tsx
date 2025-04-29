@@ -27,6 +27,9 @@ import { isTokenExpired } from './utils/auth';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import PoliticasPrivacidade from './pages/Politicas';
+import TermosDeUso from './pages/Termos';
+import Cookie from './pages/Cookies';
 
 function App() {
 
@@ -47,6 +50,11 @@ function App() {
       <Toaster position="top-right" />
       <Routes>
         <Route path="/" element={<Landing />} />
+
+        <Route path="/cookies" element={<Cookie />} />
+        <Route path="/politicas" element={<PoliticasPrivacidade />} />
+        <Route path="/termos" element={<TermosDeUso />} />
+
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/login" element={<Login/>} />
         <Route path="/admin/login" element={<AdminLogin/>} />
