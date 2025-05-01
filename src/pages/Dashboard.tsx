@@ -171,6 +171,8 @@ export function Dashboard() {
 
   if (loading) return <div>Carregando...</div>;
 
+  console.log(invoice);
+
   return (
     <div className="space-y-6">
         <h1 className="text-2xl sm:text-left font-bold text-gray-900 text-center">Painel de Controle</h1>      
@@ -258,7 +260,7 @@ export function Dashboard() {
           <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Ações</th>
             </tr>
           </thead>
-          <tbody>
+           <tbody>
             {invoice.map((item) => (
           <tr key={item.customer._id} className="border-b border-gray-100">
             <td className="py-3 px-4">
@@ -280,7 +282,7 @@ export function Dashboard() {
               </span>
             </td>
             <td className="py-3 px-4 text-gray-700">
-              {item.customer.name || item.customer.razaoSocial}
+              {item.customer.name || item.customer.razaoSocial || ''}
             </td>
             <td className="py-3 px-4 text-gray-500">
               {dayjs(item.date).format('DD/MM/YYYY HH:mm')}

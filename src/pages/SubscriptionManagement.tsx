@@ -16,6 +16,7 @@ export function SubscriptionManagement() {
             created_at: '',
             statement_descriptor: '',
             trial_period_days: '',
+            billing_type: '',
             status: '',
             items: [
                 {
@@ -149,6 +150,8 @@ export function SubscriptionManagement() {
         return <p className="text-red-500">Erro: {error}</p>;
     }
 
+    console.log(plans);
+
     return (
         <>
         <div className="flex flex-col items-center h-screen p-4">
@@ -192,6 +195,9 @@ export function SubscriptionManagement() {
                     </Typography>
                     <Typography className="text-gray-600">
                     {plan.statement_descriptor}
+                    </Typography>
+                    <Typography className="text-gray-600">
+                    {plan.billing_type}
                     </Typography>
                     <Typography className="text-gray-600">
                     Tempo gratuito {plan.trial_period_days} dias
