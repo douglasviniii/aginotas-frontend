@@ -112,12 +112,12 @@ const [filteredInvoices, setFilteredInvoices] = useState([]);
           api.Find_All_Subscriptions(),
         ]);
 
-        const filteredInvoices = invoice.filter(
+        const filteredInvoicesvalid = invoice.filter(
           (inv) => inv.status === 'emitida' || inv.status === 'substituida'
         );
-        setInvoice(filteredInvoices);
+        setInvoice(filteredInvoicesvalid);
 
-        const totalPrice = filteredInvoices.reduce((sum, inv) => sum + inv.valor, 0);
+        const totalPrice = invoice.reduce((sum, inv) => sum + inv.valor, 0);
         setInvoicePrice(totalPrice);
 
         const canceledInvoices = invoice.filter((inv) => inv.status === 'cancelada');
@@ -147,14 +147,15 @@ const [filteredInvoices, setFilteredInvoices] = useState([]);
     return <p className="text-red-500">Erro: {error}</p>;
   }
 
-  const handleUpdate = async () => {
-    const totalPrice = filteredInvoices
-      .filter((inv) => inv.status === 'emitida' || inv.status === 'substituida')
-      .reduce((sum, inv) => sum + inv.valor, 0);
+  const handleUpdate = () => {
+    const validInvoices = filteredInvoices.filter(
+      (inv) => inv.status === 'emitida' || inv.status === 'substituida'
+    );
+    const totalPrice = validInvoices.reduce((sum, inv) => sum + inv.valor, 0);
     setInvoicePrice(totalPrice);
 
-    const totalPricecancel = filteredInvoices.filter((inv) => inv.status === 'cancelada');
-    setInvoicePriceCancel(totalPricecancel);
+    const canceledInvoices = filteredInvoices.filter((inv) => inv.status === 'cancelada');
+    setInvoicePriceCancel(canceledInvoices);
   };
 
 
