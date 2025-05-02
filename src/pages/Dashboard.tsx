@@ -81,8 +81,10 @@ export function Dashboard() {
   }, [customer,invoice,customeractive]); */
 
 
-  const processarNotasParaGrafico = (notas: Nota[]) => {
+/*   const processarNotasParaGrafico = (notas: Nota[]) => {
     const hoje = dayjs().tz('America/Sao_Paulo').startOf('day'); 
+    console.log(hoje);
+    console.log(filteredInvoices);
     const seteDiasAtras = hoje.subtract(7, 'day').startOf('day');
   
     const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
@@ -98,6 +100,34 @@ export function Dashboard() {
         const indiceDia = dataNota.day(); 
         const nomeDia = diasSemana[indiceDia]; 
         contagemPorDia[nomeDia]++;
+      }
+    });
+  
+    return Object.keys(contagemPorDia).map((dia) => ({
+      name: dia,
+      notas: contagemPorDia[dia],
+    }));
+  }; */
+
+  const processarNotasParaGrafico = (notas: Nota[]) => {
+    const hoje = dayjs().tz('America/Sao_Paulo').startOf('day'); 
+    const umMesAtras = hoje.subtract(1, 'month').startOf('day');
+  
+    const diasDoMes = Array.from({ length: hoje.diff(umMesAtras, 'day') + 1 }, (_, i) => 
+      umMesAtras.add(i, 'day').format('DD/MM')
+    );
+  
+    const contagemPorDia: Record<string, number> = diasDoMes.reduce((acc, dia) => {
+      acc[dia] = 0;
+      return acc;
+    }, {} as Record<string, number>);
+  
+    notas.forEach((nota) => {
+      const dataNota = dayjs(nota.date).tz('America/Sao_Paulo').startOf('day');
+      
+      if (dataNota.isValid() && dataNota.isBetween(umMesAtras, hoje, 'day', '[]')) {
+        const diaFormatado = dataNota.format('DD/MM');
+        contagemPorDia[diaFormatado]++;
       }
     });
   
@@ -200,22 +230,24 @@ export function Dashboard() {
           >
         <option value="">Selecione o Mês</option>
         {Array.from({ length: 12 }, (_, i) => i).map((month) => (
-            <option key={month} value={month}>
+            <option key={month } value={month}>
             {dayjs().locale('pt-br').month(month).format('MMMM')}
             </option>
         ))}
           </select>
 
-          <button
-        className="bg-blue-500 text-white px-4 py-2 rounded-lg"
-        onClick={() => {
+            <button
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+          onClick={() => {
           if (selectedYear && selectedMonth) {           
             const selectedDate = dayjs(`${selectedYear}-${String(Number(selectedMonth) + 1).padStart(2, '0')}-01`);
+            
             const filtered = invoice.filter((nota) => {
-          const notaDate = dayjs(nota.date);
-          console.log(notaDate.isSame(selectedDate, 'month'));
-          return notaDate.isSame(selectedDate, 'month');
-            });        
+
+            const notaDate = dayjs(nota.date);
+            return notaDate.isSame(selectedDate, 'month');
+            
+          });        
             setFilteredInvoices(filtered);
           } else {
             toast.error("Por favor, selecione o ano e o mês.");
@@ -281,8 +313,9 @@ export function Dashboard() {
       </div>
 
       {/* Gráfico */}
+      {filteredInvoices.length > 0 ? (
       <div className="bg-white p-6 rounded-xl shadow-sm">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Notas Emitidas - Últimos 7 dias</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Notas Emitidas - Últimos 30 dias</h2>
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data}>
@@ -295,7 +328,9 @@ export function Dashboard() {
           </ResponsiveContainer>
         </div>
       </div>
-
+      ):(
+        <></>
+      )}
       {/* Status de Emails */}
       <div className="bg-white p-6 rounded-xl shadow-sm">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Status de Envio de Notas</h2>
