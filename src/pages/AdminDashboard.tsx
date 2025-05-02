@@ -89,6 +89,7 @@ const [subscriptions, setSubscriptions] = useState([]);
 useEffect(() => {
   async function fetchMetrics() {
     try {
+      setLoading(true);
       const invoice = await api.find_all_invoices();
       setInvoice(invoice.filter((inv) => inv.status === 'emitida' || inv.status === 'substituida'));
 
@@ -110,60 +111,13 @@ useEffect(() => {
 
       const subscriptions = await api.Find_All_Subscriptions();
       setSubscriptions(subscriptions.data);
-
+      setLoading(false);
     } catch (error) {
       console.error('Erro ao buscar métricas:', error);
     }
   }
   fetchMetrics();
 }, []);
-
-
-  const dataInvoices = {
-    labels: metrics.invoicesByMonth.map((item) => item.month),
-    datasets: [
-      {
-        label: 'Valor das Notas Fiscais Emitidas por Mês',
-        data: metrics.invoicesByMonth.map((item) => item.value),
-        backgroundColor: 'rgba(54, 162, 235, 0.5)',
-      },
-    ],
-  };
-  
-  const dataCustomers = {
-    labels: metrics.customersByMonth.map((item) => item.month),
-    datasets: [
-      {
-        label: 'Número de Clientes por Mês',
-        data: metrics.customersByMonth.map((item) => item.count),
-        backgroundColor: 'rgba(255, 99, 132, 0.5)',
-      },
-    ],
-  };
-  
-  const dataSubscriptions = {
-    labels: metrics.subscriptionsByMonth.map((item) => item.month),
-    datasets: [
-      {
-        label: 'Novas Assinaturas por Mês',
-        data: metrics.subscriptionsByMonth.map((item) => item.count),
-        backgroundColor: 'rgba(75, 192, 192, 0.5)',
-      },
-    ],
-  };
-
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top' as const,
-      },
-      title: {
-        display: true,
-        text: 'Gráficos Mensais',
-      },
-    },
-  };
 
   if (loading) {
     return (
@@ -172,7 +126,6 @@ useEffect(() => {
       </div>
     );
   }
-
 
   if (error) {
     return <p className="text-red-500">Erro: {error}</p>;
@@ -207,10 +160,6 @@ useEffect(() => {
     <h2 className="text-lg font-semibold text-gray-700">Assinaturas em atraso</h2>
     <p className="text-3xl font-bold text-gray-800 mt-2">{subscriptions.filter((sub) => sub.status === 'suspended').length}</p>
   </div>
-{/*   <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-    <h2 className="text-lg font-semibold text-gray-700">Cancelamentos de Assinatura</h2>
-    <p className="text-3xl font-bold text-gray-800 mt-2">{metrics.subscriptionCancellations}</p>
-  </div> */}
   <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
     <h2 className="text-lg font-semibold text-gray-700">Receita Total de Assinaturas</h2>
     <p className="text-3xl font-bold text-gray-800 mt-2">R$ {(((plans?.items[0].pricing_scheme.price || 0) / 100) * users.filter((user) => user.status === 'active').length).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || 0}</p>
@@ -224,35 +173,6 @@ useEffect(() => {
         <p className="text-3xl font-bold text-gray-800 mt-2">{[plans]?.length}</p>
       </div>
     </div>
-
-{/*     <div className="flex flex-col gap-4">
-      <div className="flex justify-center gap-4">
-        <button
-          className={`px-4 py-2 rounded-md ${selectedChart === 'invoices' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
-          onClick={() => setSelectedChart('invoices')}
-        >
-          Notas Fiscais
-        </button>
-        <button
-          className={`px-4 py-2 rounded-md ${selectedChart === 'customers' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
-          onClick={() => setSelectedChart('customers')}
-        >
-          Clientes
-        </button>
-        <button
-          className={`px-4 py-2 rounded-md ${selectedChart === 'subscriptions' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
-          onClick={() => setSelectedChart('subscriptions')}
-        >
-          Assinaturas
-        </button>
-      </div>
-
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        {selectedChart === 'invoices' && <Bar options={options} data={dataInvoices} />}
-        {selectedChart === 'customers' && <Bar options={options} data={dataCustomers} />}
-        {selectedChart === 'subscriptions' && <Bar options={options} data={dataSubscriptions} />}
-      </div>
-    </div> */}
   </div>
   );
 }

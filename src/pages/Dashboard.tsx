@@ -45,10 +45,15 @@ export function Dashboard() {
   const [dayInvoicetoday, setDayInvoiceToday] = useState(0);
   const [dayInvoicelast7days, setDayInvoiceLast7Days] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [filteredInvoices, setFilteredInvoices] = useState<Nota[]>([]);
+  const [selectedYear, setSelectedYear] = useState<string>('');
+  const [selectedMonth, setSelectedMonth] = useState<string>('');
 
   useEffect(() => {
     load_data(); 
   }, []);
+
+  const navigate = useNavigate();
 
   const load_data = async () => {
     const datainvoices = await api.find_invoices();
@@ -57,26 +62,23 @@ export function Dashboard() {
     setCustomer(datacustomers);
     const datacustomeractive = await api.find_customers_actives();
     setCustomerActive(datacustomeractive);
-
-    const navigate = useNavigate();
-
-    useEffect(() => {
-      const userToken = Cookies.get('token');
-      const adminToken = Cookies.get('admin_token');
-  
-      const token = userToken || adminToken;
-  
-      if (!token || isTokenExpired(token)) {
-        Cookies.remove('token');
-        Cookies.remove('admin_token');
-        navigate('/login');
-      }
-    }, [navigate]);
-
-  } 
+  };
 
   useEffect(() => {
-  }, [customer,invoice,customeractive]);
+    const userToken = Cookies.get('token');
+    const adminToken = Cookies.get('admin_token');
+
+    const token = userToken || adminToken;
+
+    if (!token || isTokenExpired(token)) {
+      Cookies.remove('token');
+      Cookies.remove('admin_token');
+      navigate('/login');
+    }
+  }, [navigate]);
+
+/*   useEffect(() => {
+  }, [customer,invoice,customeractive]); */
 
 
   const processarNotasParaGrafico = (notas: Nota[]) => {
@@ -142,8 +144,8 @@ export function Dashboard() {
     }, 0);
   }
 
-  const data = processarNotasParaGrafico(invoice);
-  const days = getNotasPorPeriodo(invoice);
+  const data = processarNotasParaGrafico(filteredInvoices);
+  const days = getNotasPorPeriodo(filteredInvoices);
   const valorAreceber = somarValoresNotas(days.notasUltimos30Dias);
 
   useEffect(()=>{
@@ -171,12 +173,60 @@ export function Dashboard() {
 
   if (loading) return <div>Carregando...</div>;
 
-  console.log(invoice);
 
   return (
     <div className="space-y-6">
-        <h1 className="text-2xl sm:text-left font-bold text-gray-900 text-center">Painel de Controle</h1>      
-      
+      <h1 className="text-2xl sm:text-left font-bold text-gray-900 text-center">Painel de Controle</h1>      
+
+      {/* Filtro por Ano e Mês */}
+      <div className="bg-white p-6 rounded-xl shadow-sm">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Filtrar Notas por Ano e Mês</h2>
+        <div className="flex gap-4">
+          <select
+        className="border border-gray-300 rounded-lg p-2"
+        onChange={(e) => setSelectedYear(e.target.value)}
+          >
+        <option value="">Selecione o Ano</option>
+        {Array.from({ length: 5 }, (_, i) => dayjs().year() - i).map((year) => (
+          <option key={year} value={year}>
+            {year}
+          </option>
+        ))}
+          </select>
+
+          <select
+        className="border border-gray-300 rounded-lg p-2"
+        onChange={(e) => setSelectedMonth(e.target.value)}
+          >
+        <option value="">Selecione o Mês</option>
+        {Array.from({ length: 12 }, (_, i) => i).map((month) => (
+            <option key={month} value={month}>
+            {dayjs().locale('pt-br').month(month).format('MMMM')}
+            </option>
+        ))}
+          </select>
+
+          <button
+        className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+        onClick={() => {
+          if (selectedYear && selectedMonth) {           
+            const selectedDate = dayjs(`${selectedYear}-${String(Number(selectedMonth) + 1).padStart(2, '0')}-01`);
+            const filtered = invoice.filter((nota) => {
+          const notaDate = dayjs(nota.date);
+          console.log(notaDate.isSame(selectedDate, 'month'));
+          return notaDate.isSame(selectedDate, 'month');
+            });        
+            setFilteredInvoices(filtered);
+          } else {
+            toast.error("Por favor, selecione o ano e o mês.");
+          }
+        }}
+          >
+        Filtrar
+          </button>
+        </div>
+      </div>
+
       {/* Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white p-6 rounded-xl shadow-sm">
@@ -222,9 +272,9 @@ export function Dashboard() {
             </div>
             <div>
               <p className="text-sm text-gray-600">Previsão Mensal</p>
-                <p className="text-2xl font-bold text-gray-900">
+              <p className="text-2xl font-bold text-gray-900">
                 R$ {valorAreceber.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </p>
+              </p>
             </div>
           </div>
         </div>
@@ -251,62 +301,62 @@ export function Dashboard() {
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Status de Envio de Notas</h2>
         <div className="overflow-x-auto">
           <div className="max-h-96 overflow-y-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-gray-200">
-          <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Status</th>
-          <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Cliente</th>
-          <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Data/Hora</th>
-          <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Ações</th>
-            </tr>
-          </thead>
-           <tbody>
-            {invoice.map((item) => (
-          <tr key={item.customer._id} className="border-b border-gray-100">
-            <td className="py-3 px-4">
-              <span
-            className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-sm ${
-              item.status.toLowerCase() === 'emitida'
-                ? 'bg-green-100 text-green-700'
-                : item.status.toLowerCase() === 'substituida'
-                ? 'bg-blue-100 text-blue-700'
-                : 'bg-red-100 text-red-700'
-            }`}
-              >
-            {item.status.toLowerCase() === 'emitida'
-              ? '✓'
-              : item.status.toLowerCase() === 'substituida'
-              ? '↺'
-              : '!'}{' '}
-            {item.status}
-              </span>
-            </td>
-            <td className="py-3 px-4 text-gray-700">
-              {item.customer.name || item.customer.razaoSocial || ''}
-            </td>
-            <td className="py-3 px-4 text-gray-500">
-              {dayjs(item.date).format('DD/MM/YYYY HH:mm')}
-            </td>
-            <td className="py-3 px-4">
-              <div className="flex gap-2">
-            <button
-              onClick={() => downloadCustomerXml(item)}
-              className="text-blue-600 hover:underline"
-            >
-              Baixar XML
-            </button>
-            <button
-              onClick={() => criarNotaFiscalPDF(item)}
-              className="text-blue-600 hover:underline"
-            >
-              Baixar PDF
-            </button>
-              </div>
-            </td>
-          </tr>
-            ))}
-          </tbody>
-        </table>
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-200">
+                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Status</th>
+                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Cliente</th>
+                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Data/Hora</th>
+                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredInvoices.map((item) => (
+                  <tr key={item.customer._id} className="border-b border-gray-100">
+                    <td className="py-3 px-4">
+                      <span
+                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-sm ${
+                          item.status.toLowerCase() === 'emitida'
+                            ? 'bg-green-100 text-green-700'
+                            : item.status.toLowerCase() === 'substituida'
+                            ? 'bg-blue-100 text-blue-700'
+                            : 'bg-red-100 text-red-700'
+                        }`}
+                      >
+                        {item.status.toLowerCase() === 'emitida'
+                          ? '✓'
+                          : item.status.toLowerCase() === 'substituida'
+                          ? '↺'
+                          : '!'}{' '}
+                        {item.status}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-gray-700">
+                      {item.customer.name || item.customer.razaoSocial || ''}
+                    </td>
+                    <td className="py-3 px-4 text-gray-500">
+                      {dayjs(item.date).format('DD/MM/YYYY HH:mm')}
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => downloadCustomerXml(item)}
+                          className="text-blue-600 hover:underline"
+                        >
+                          Baixar XML
+                        </button>
+                        <button
+                          onClick={() => criarNotaFiscalPDF(item)}
+                          className="text-blue-600 hover:underline"
+                        >
+                          Baixar PDF
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
