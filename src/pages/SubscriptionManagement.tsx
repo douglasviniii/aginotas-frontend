@@ -48,6 +48,10 @@ export function SubscriptionManagement() {
             plan:{
                 id: '',
                 status: '',
+            },
+            current_cycle:{
+                billing_at: '',
+                status:'',
             }
         }
     ]);
@@ -150,7 +154,7 @@ export function SubscriptionManagement() {
         return <p className="text-red-500">Erro: {error}</p>;
     }
 
-    console.log(plans);
+    //console.log(subscriptions);
 
     return (
         <>
@@ -247,6 +251,20 @@ export function SubscriptionManagement() {
                         <Typography className="text-gray-600">
                             <strong>Status da Assinatura:</strong> {subscription.status}
                         </Typography>
+                        {subscription.status != 'canceled' ? (
+                        <Typography className="text-gray-600">
+                            <strong>Faturamento em:</strong> {new Date(new Date(subscription?.current_cycle?.billing_at).setDate(new Date(subscription?.current_cycle?.billing_at).getDate() + 1)).toLocaleDateString('pt-BR', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                            })}
+                            <strong>   {subscription?.current_cycle?.status}</strong>
+                        </Typography>
+                        ):(
+                        <Typography className="text-gray-600">
+                            <strong></strong>
+                        </Typography>                            
+                        )}
                     </div>
                     <div className="mt-4 flex space-x-2">
 {/*                     <button className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600">

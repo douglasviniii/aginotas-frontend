@@ -211,9 +211,9 @@ export function Dashboard() {
       {/* Filtro por Ano e Mês */}
       <div className="bg-white p-6 rounded-xl shadow-sm">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Filtrar Notas por Ano e Mês</h2>
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row gap-4">
           <select
-        className="border border-gray-300 rounded-lg p-2"
+        className="border border-gray-300 rounded-lg p-2 w-full sm:w-auto"
         onChange={(e) => setSelectedYear(e.target.value)}
           >
         <option value="">Selecione o Ano</option>
@@ -225,29 +225,27 @@ export function Dashboard() {
           </select>
 
           <select
-        className="border border-gray-300 rounded-lg p-2"
+        className="border border-gray-300 rounded-lg p-2 w-full sm:w-auto"
         onChange={(e) => setSelectedMonth(e.target.value)}
           >
         <option value="">Selecione o Mês</option>
         {Array.from({ length: 12 }, (_, i) => i).map((month) => (
-            <option key={month } value={month}>
+          <option key={month} value={month}>
             {dayjs().locale('pt-br').month(month).format('MMMM')}
-            </option>
+          </option>
         ))}
           </select>
 
-            <button
-          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-          onClick={() => {
+          <button
+        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 w-full sm:w-auto"
+        onClick={() => {
           if (selectedYear && selectedMonth) {           
             const selectedDate = dayjs(`${selectedYear}-${String(Number(selectedMonth) + 1).padStart(2, '0')}-01`);
             
             const filtered = invoice.filter((nota) => {
-
-            const notaDate = dayjs(nota.date);
-            return notaDate.isSame(selectedDate, 'month');
-            
-          });        
+          const notaDate = dayjs(nota.date);
+          return notaDate.isSame(selectedDate, 'month');
+            });        
             setFilteredInvoices(filtered);
           } else {
             toast.error("Por favor, selecione o ano e o mês.");
