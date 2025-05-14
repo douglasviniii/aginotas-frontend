@@ -39,6 +39,7 @@ export function Financial() {
   const statusMap = {
     "Atrasado": "Atrasado",
     "Vencimento Hoje": "A Receber",
+    "A Receber": "A Receber",
     "Parcelado": "Parcelado",
     "Recorrente": "Recorrente",
     "Pago": "Pago",
@@ -56,6 +57,7 @@ export function Financial() {
       const status = r.status;
 
       const isDueBeforeToday = dueDate < today;
+      const isDueLastToday = dueDate > today;
       const isDueToday = dueDate.getTime() === today.getTime();
       const isNotPaid = status !== "Pago";
 
@@ -64,6 +66,8 @@ export function Financial() {
           return isDueBeforeToday && isNotPaid;
         case "Vencimento Hoje":
           return isDueToday;
+        case "A Receber":
+          return isDueLastToday && isNotPaid && status === "A Receber";
         case "Pago":
           return status === "Pago";
         case "Parcelado":
@@ -159,6 +163,8 @@ export function Financial() {
       date.getFullYear() === selectedYear
     );
   });
+
+  console.log(filteredReceivables2.filter((r) => r.typeofcharge === "Receber Agora"));
 
   const chartData = [
     {
@@ -927,7 +933,7 @@ export function Financial() {
                             >
                               Excluir
                             </button>
-                            {r.typeofcharge === "Pago" && (
+                            {r.typeofcharge === "Pago" || r.typeofcharge === "Receber Agora" && (
                                 <button
                                 onClick={() => printReceipt(r)}
                                 className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition-all duration-200"
