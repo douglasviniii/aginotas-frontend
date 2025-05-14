@@ -928,12 +928,12 @@ export function Financial() {
                               Excluir
                             </button>
                             {r.typeofcharge === "Pago" && (
-                              <button
-                              onClick={() => printReceipt(r)}
-                              className="px-3 py-1 text-sm bg-orange-600 text-white rounded hover:bg-orange-700 transition-all duration-200"
-                            >
-                              Baixar
-                            </button>                            
+                                <button
+                                onClick={() => printReceipt(r)}
+                                className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition-all duration-200"
+                                >
+                                Baixar
+                                </button>
                           )}
                           </div>
                         </div>
