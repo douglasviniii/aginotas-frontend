@@ -233,94 +233,95 @@ export function UserChat() {
   }
 
   return (
-    <div className="flex flex-col h-[90vh] bg-gradient-to-br from-blue-100 via-white to-blue-200">
-      <div className="bg-gradient-to-r from-blue-600 to-blue-500 text-white p-5 rounded-t-2xl flex items-center justify-between shadow-lg">
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <span className="animate-pulse">💬</span> Chat de Suporte
-        </h1>
-        <div className="flex items-center gap-2">
-          <span className="w-3 h-3 bg-green-400 rounded-full inline-block animate-pulse" title="Online"></span>
-          <span className="text-base font-medium">Suporte Online</span>
-        </div>
+    <div className="flex flex-col h-[90vh] bg-gradient-to-br from-blue-100 via-white to-blue-200
+      max-w-full w-full sm:max-w-lg sm:mx-auto sm:rounded-2xl shadow-lg">
+      <div className="bg-gradient-to-r from-blue-600 to-blue-500 text-white p-4 sm:p-5 rounded-t-2xl flex items-center justify-between shadow-lg">
+      <h1 className="text-lg sm:text-2xl font-bold flex items-center gap-2">
+        <span className="animate-pulse">💬</span> Chat de Suporte
+      </h1>
+      <div className="flex items-center gap-2">
+        <span className="w-3 h-3 bg-green-400 rounded-full inline-block animate-pulse" title="Online"></span>
+        <span className="text-xs sm:text-base font-medium">Suporte Online</span>
+      </div>
       </div>
 
-      <div className="flex-grow overflow-y-auto p-6 space-y-4 bg-transparent">
-        {messages.map((message, index) => (
-          <div
-            key={`${message.timestamp}-${index}`}
-            className={`max-w-[70%] p-4 rounded-2xl shadow-md relative ${
-              message.sender === 'admin'
-                ? 'bg-gradient-to-br from-blue-200 to-blue-100 self-start rounded-bl-none'
-                : 'bg-gradient-to-br from-gray-200 to-gray-100 self-end rounded-br-none'
-            } animate-fade-in`}
-            style={{ marginLeft: message.sender === 'admin' ? 0 : 'auto' }}
-          >
-            <div className="mb-2 flex items-center gap-2">
-              <span className={`font-bold ${message.sender === 'admin' ? 'text-blue-700' : 'text-gray-700'}`}>
-                {message.sender === 'admin' ? (message.senderName || 'Atendente') : (message.senderName || 'Você')}
-              </span>
-              {message.sender === 'admin' && (
-                <>
-                  <span className="w-2 h-2 bg-green-500 rounded-full" title="Online"></span>
-                  <span className="text-xs text-green-600">Online</span>
-                </>
-              )}
-            </div>
-            {message.media && message.media.imageBase64 && (
-              <div className="mb-2">
-                <img
-                  src={message.media.imageBase64}
-                  alt="imagem"
-                  className="max-w-[180px] rounded-xl border border-blue-200 shadow"
-                />
-              </div>
-            )}
-            <p className="text-base">{message.text}</p>
-            <span className="text-xs text-gray-500 absolute bottom-2 right-4">
-              {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-            </span>
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
-      </div>
-
-      <div className="flex items-center p-4 border-t border-blue-200 bg-white rounded-b-2xl shadow-lg">
-        <label className="flex items-center cursor-pointer mr-3">
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleImageChange}
-          />
-          <span className="bg-blue-100 hover:bg-blue-200 p-3 rounded-xl text-blue-600 text-xl transition shadow">
-            📎
-          </span>
-        </label>
-        <input
-          type="text"
-          className="flex-grow p-3 border-2 border-blue-200 rounded-l-xl focus:outline-none focus:ring-2 focus:ring-blue-400 text-base transition"
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          placeholder="Digite sua mensagem..."
-          onKeyDown={handleKeyDown}
-        />
-        <button
-          className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white p-3 rounded-r-xl shadow font-bold transition"
-          onClick={handleSendMessage}
+      <div className="flex-grow overflow-y-auto p-2 sm:p-6 space-y-3 sm:space-y-4 bg-transparent">
+      {messages.map((message, index) => (
+        <div
+        key={`${message.timestamp}-${index}`}
+        className={`max-w-[90%] sm:max-w-[70%] p-3 sm:p-4 rounded-2xl shadow-md relative ${
+          message.sender === 'admin'
+          ? 'bg-gradient-to-br from-blue-200 to-blue-100 self-start rounded-bl-none'
+          : 'bg-gradient-to-br from-gray-200 to-gray-100 self-end rounded-br-none'
+        } animate-fade-in`}
+        style={{ marginLeft: message.sender === 'admin' ? 0 : 'auto' }}
         >
-          <SendIcon className="w-6 h-6" />
-        </button>
+        <div className="mb-1 sm:mb-2 flex items-center gap-2">
+          <span className={`font-bold ${message.sender === 'admin' ? 'text-blue-700' : 'text-gray-700'} text-sm sm:text-base`}>
+          {message.sender === 'admin' ? (message.senderName || 'Atendente') : (message.senderName || 'Você')}
+          </span>
+          {message.sender === 'admin' && (
+          <>
+            <span className="w-2 h-2 bg-green-500 rounded-full" title="Online"></span>
+            <span className="text-xs text-green-600">Online</span>
+          </>
+          )}
+        </div>
+        {message.media && message.media.imageBase64 && (
+          <div className="mb-2">
+          <img
+            src={message.media.imageBase64}
+            alt="imagem"
+            className="max-w-[120px] sm:max-w-[180px] rounded-xl border border-blue-200 shadow"
+          />
+          </div>
+        )}
+        <p className="text-sm sm:text-base break-words">{message.text}</p>
+        <span className="text-xs text-gray-500 absolute bottom-2 right-4">
+          {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        </span>
+        </div>
+      ))}
+      <div ref={messagesEndRef} />
+      </div>
+
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center p-2 sm:p-4 border-t border-blue-200 bg-white rounded-b-2xl shadow-lg gap-2 sm:gap-0">
+      <label className="flex items-center cursor-pointer mr-0 sm:mr-3">
+        <input
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleImageChange}
+        />
+        <span className="bg-blue-100 hover:bg-blue-200 p-2 sm:p-3 rounded-xl text-blue-600 text-xl transition shadow">
+        📎
+        </span>
+      </label>
+      <input
+        type="text"
+        className="flex-grow p-2 sm:p-3 border-2 border-blue-200 rounded-l-xl focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm sm:text-base transition"
+        value={newMessage}
+        onChange={(e) => setNewMessage(e.target.value)}
+        placeholder="Digite sua mensagem..."
+        onKeyDown={handleKeyDown}
+      />
+      <button
+        className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white p-2 sm:p-3 rounded-r-xl shadow font-bold transition"
+        onClick={handleSendMessage}
+      >
+        <SendIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+      </button>
       </div>
       {media && (
-        <div className="p-3 bg-blue-50 text-sm text-blue-700 flex items-center gap-3 border-t border-blue-100">
-          <span>Arquivo selecionado: <span className="font-semibold">{mediaName}</span></span>
-          <button
-            className="text-red-500 font-semibold hover:underline"
-            onClick={() => { setMedia(null); setMediaName(null); }}
-          >
-            Remover
-          </button>
-        </div>
+      <div className="p-2 sm:p-3 bg-blue-50 text-xs sm:text-sm text-blue-700 flex items-center gap-2 sm:gap-3 border-t border-blue-100">
+        <span>Arquivo selecionado: <span className="font-semibold">{mediaName}</span></span>
+        <button
+        className="text-red-500 font-semibold hover:underline"
+        onClick={() => { setMedia(null); setMediaName(null); }}
+        >
+        Remover
+        </button>
+      </div>
       )}
     </div>
   );
