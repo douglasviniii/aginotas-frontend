@@ -380,7 +380,7 @@ export function Financial() {
   }, []);
 
 
-  function calcularTempoDeRecorrencia(creationDate: string, dueDate: string): string {
+/*   function calcularTempoDeRecorrencia(creationDate: string, dueDate: string): string {
     const start = new Date(creationDate);
     const end = new Date(dueDate);
   
@@ -394,10 +394,109 @@ export function Financial() {
     }
   
     return `${months} ${months === 1 ? 'mês' : 'meses'}`;
+  } */
+
+  /**
+   * 
+   * @param {any} receivable 
+   */
+
+  function printReceipt(receivable: any) {
+    if (!receivable) return;
+
+    function formatCNPJ(cnpj: string) {
+      if (!cnpj) return "";
+      return cnpj
+      .replace(/\D/g, "")
+      .replace(/^(\d{2})(\d)/, "$1.$2")
+      .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+      .replace(/\.(\d{3})(\d)/, ".$1/$2")
+      .replace(/(\d{4})(\d)/, "$1-$2")
+      .slice(0, 18);
+    }
+
+    const companyInfoFromStorage = localStorage.getItem("user");
+    
+    let companyInfo = {
+      name: " ",
+      cnpj: " ",
+      email: " ",
+      picture: " ",
+      cidade: "",
+      estado: "",
+    };
+
+    if (companyInfoFromStorage) {
+      try {
+        const parsed = JSON.parse(companyInfoFromStorage);
+        companyInfo = {
+          ...companyInfo,
+          ...parsed,
+        };
+      } catch (e) {
+      }
+    }
+
+    const doc = new jsPDF();
+
+    if (companyInfo.picture) {
+      try {
+        doc.addImage(companyInfo.picture, "PNG", 15, 10, 30, 30);
+      } catch (e) {
+      }
+    }
+
+    doc.setFontSize(14);
+    doc.text(companyInfo.name, 50, 18);
+    doc.setFontSize(10);
+
+    doc.text(`CNPJ: ${formatCNPJ(companyInfo.cnpj)}`, 50, 24);
+    //doc.text(companyInfo.address, 50, 30);
+    doc.text(`Email: ${companyInfo.email}`, 50, 30);
+    doc.text(`Localidade: ${companyInfo.cidade + '-' +companyInfo.estado}`, 50, 36);
+
+    // Título do recibo
+    doc.setFontSize(18);
+    doc.text("Recibo de Pagamento", 105, 50, { align: "center" });
+
+    doc.setFontSize(12);
+    doc.text(`Data de emissão: ${new Date().toLocaleDateString("pt-BR")}`, 15, 60);
+
+    // Corpo do recibo
+    doc.setFontSize(14);
+    doc.text(
+      `Recebemos de: ${receivable.customer?.name || receivable.customer?.razaoSocial || "Cliente"}`,
+      15,
+      75
+    );
+    doc.text(
+      `Valor: R$ ${Number(receivable.value).toLocaleString("pt-BR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`,
+      15,
+      85
+    );
+    doc.text(`Data do pagamento: ${receivable.dueDate}`, 15, 95);
+
+    if (receivable.description) {
+      doc.text(`Descrição: ${receivable.description}`, 15, 105);
+    }
+
+    doc.text(
+      "Assinatura: ___________________________________________",
+      15,
+      130
+    );
+
+    doc.save(
+      `recibo-${receivable.customer?.name || receivable.customer?.razaoSocial || "cliente"}-${receivable.dueDate}.pdf`
+    );
   }
 
 
   if (loading) return <div>Carregando...</div>;
+
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -828,6 +927,14 @@ export function Financial() {
                             >
                               Excluir
                             </button>
+                            {r.typeofcharge === "Pago" && (
+                              <button
+                              onClick={() => printReceipt(r)}
+                              className="px-3 py-1 text-sm bg-orange-600 text-white rounded hover:bg-orange-700 transition-all duration-200"
+                            >
+                              Baixar
+                            </button>                            
+                          )}
                           </div>
                         </div>
                         <button
@@ -855,6 +962,7 @@ export function Financial() {
                             </p>
                             <p>
                               <strong>Tipo:</strong> {r.status}
+                              <strong>Tipo:</strong> {r.typeofcharge}
                             </p>
                             {r.typeofcharge === "Recorrente" && (
                               <p>

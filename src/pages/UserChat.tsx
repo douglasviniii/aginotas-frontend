@@ -120,12 +120,127 @@ export function UserChat() {
     };
   }, []);
 
+  // Componente de pré-atendimento simples
+/*   interface ChatbotPreAtendimentoProps {
+    onFinish: (info: { nome: string; email: string; assunto: string }) => void;
+  }
 
+  function ChatbotPreAtendimento({ onFinish }: ChatbotPreAtendimentoProps) {
+    const [step, setStep] = useState(0);
+    const [nome, setNome] = useState('');
+    const [email, setEmail] = useState('');
+    const [assunto, setAssunto] = useState('');
+
+    const handleNext = () => {
+      if (step === 0 && nome.trim()) setStep(1);
+      else if (step === 1 && email.trim()) setStep(2);
+      else if (step === 2 && assunto.trim()) {
+        onFinish({ nome, email, assunto });
+      }
+    };
+
+  const handleSendMessageBot = () => {
+    if (newMessage.trim()) {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const userId = user._id;
+
+      const message: Message = {
+        sender: 'user',  // O remetente é o usuário
+        text: newMessage,
+        timestamp: Date.now(),
+      };
+
+      if (!ticket) {
+        // Abre um novo ticket se não existir
+        handleOpenTicket();
+      } else {
+        // Envia a mensagem para o servidor
+        socket.emit('send_message', {
+          ticketId: ticket._id,
+          sender: userId,
+          message: nome,
+        });
+
+        // Adiciona a mensagem à lista de mensagens localmente
+        setMessages((prevMessages) => [...prevMessages, message]);
+      }
+
+      setNewMessage('');
+    }
+  };
+
+    return (
+      <div className="space-y-3">
+        {step === 0 && (
+          <div>
+            <label className="block mb-1 font-medium">Qual seu nome?</label>
+            <input
+              className="w-full p-2 border rounded"
+              value={nome}
+              onChange={e => setNome(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleNext()}
+              autoFocus
+            />
+            <button
+              className="mt-2 bg-blue-500 text-white px-4 py-2 rounded"
+              onClick={handleNext}
+              disabled={!nome.trim()}
+            >
+              Avançar
+            </button>
+          </div>
+        )}
+        {step === 1 && (
+          <div>
+            <label className="block mb-1 font-medium">Qual seu e-mail?</label>
+            <input
+              className="w-full p-2 border rounded"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleNext()}
+              type="email"
+              autoFocus
+            />
+            <button
+              className="mt-2 bg-blue-500 text-white px-4 py-2 rounded"
+              onClick={handleNext}
+              disabled={!email.trim()}
+            >
+              Avançar
+            </button>
+          </div>
+        )}
+        {step === 2 && (
+          <div>
+            <label className="block mb-1 font-medium">Qual o assunto?</label>
+            <input
+              className="w-full p-2 border rounded"
+              value={assunto}
+              onChange={e => setAssunto(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleNext()}
+              autoFocus
+            />
+            <button
+              className="mt-2 bg-blue-500 text-white px-4 py-2 rounded"
+              onClick={handleSendMessageBot}
+              disabled={!assunto.trim()}
+            >
+              Enviar
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  } */
 
   return (
     <div className="flex flex-col h-[90vh] bg-gray-100">
-      <div className="bg-blue-600 text-white p-4 rounded-t-lg">
+      <div className="bg-blue-600 text-white p-4 rounded-t-lg flex items-center justify-between">
         <h1 className="text-lg font-semibold">Chat de Suporte</h1>
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 bg-green-500 rounded-full inline-block" title="Online"></span>
+          <span className="text-sm">Suporte Online</span>
+        </div>
       </div>
 
       <div className="flex-grow overflow-y-auto p-4 space-y-2">
@@ -136,9 +251,18 @@ export function UserChat() {
               message.sender === 'admin' ? 'bg-blue-100 self-start' : 'bg-gray-200 self-end'
             }`}
           >
-            <strong className="block mb-1">
-              {message.sender === 'admin' ? 'Suporte' : 'Você'}:
-            </strong>
+            {message.sender === 'admin' && (
+              <div className="flex items-center mb-1 gap-2">
+                <span className="font-bold text-blue-700">Atendente</span>
+                <span className="w-2 h-2 bg-green-500 rounded-full" title="Online"></span>
+                <span className="text-xs text-green-600">Online</span>
+              </div>
+            )}
+            {message.sender === 'user' && (
+              <div className="mb-1">
+                <span className="font-bold text-gray-700">Você</span>
+              </div>
+            )}
             <p className="text-sm">{message.text}</p>
             <span className="text-xs text-gray-500">
               {new Date(message.timestamp).toLocaleString()}
@@ -148,7 +272,35 @@ export function UserChat() {
         <div ref={messagesEndRef} />
       </div>
 
+{/*       {!ticket && (
+        <div className="p-4 bg-yellow-50 border-t border-yellow-200">
+          <ChatbotPreAtendimento
+            onFinish={(info) => {
+              // Você pode salvar info no backend ou localStorage se quiser
+              handleOpenTicket();
+            }}
+          />
+        </div>
+      )} */}
+
       <div className="flex items-center p-3 border-t border-gray-300 bg-gray-50">
+{/*         <label className="flex items-center cursor-pointer mr-2">
+          <input
+            type="file"
+            accept="image/*,video/*"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file && ticket) {
+                // Implemente o upload do arquivo aqui
+                // Exemplo: uploadFile(file, ticket._id);
+              }
+            }}
+          />
+          <span className="bg-gray-200 hover:bg-gray-300 p-2 rounded-lg">
+            📎
+          </span>
+        </label> */}
         <input
           type="text"
           className="flex-grow p-3 border rounded-l-lg focus:outline-none focus:ring focus:border-blue-300"
@@ -156,10 +308,12 @@ export function UserChat() {
           onChange={(e) => setNewMessage(e.target.value)}
           placeholder="Digite sua mensagem..."
           onKeyDown={handleKeyDown}
+          //disabled={!ticket}
         />
         <button
           className="bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-r-lg"
           onClick={handleSendMessage}
+          //disabled={!ticket}
         >
           <SendIcon className="w-5 h-5" />
         </button>
