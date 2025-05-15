@@ -149,14 +149,22 @@ export function UserConfig() {
           </div>
         )}
         <div className="relative">
-        <label className="block text-sm font-semibold text-gray-600">Picture</label>
-        <input
-          type="file"
-          accept="image/*"
-          className="w-full mt-2 p-3 border border-gray-300 rounded-md"
-          onChange={handleImageUpload}
-        />
-      </div>
+          <label className="block text-sm font-semibold text-gray-600">Picture</label>
+          <input
+            type="file"
+            accept="image/jpeg,image/jpg"
+            className="w-full mt-2 p-3 border border-gray-300 rounded-md"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file && !["image/jpeg", "image/jpg"].includes(file.type)) {
+              toast.error("Apenas arquivos JPG são permitidos.");
+              e.target.value = "";
+              return;
+              }
+              handleImageUpload(e);
+            }}
+          />
+        </div>
           <div className="relative">
             <label className="block text-sm font-semibold text-gray-600">Senha Elotech</label>
             <input
