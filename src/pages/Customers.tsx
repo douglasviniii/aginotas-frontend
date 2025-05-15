@@ -854,11 +854,13 @@ const toggleMenu = (id:any) => {
 
   const loadCustomers = async () => {
     try {
+      setLoading(true);
       const data = await api.find_customers_user();
       setCustomers(data || []);
       const cnaes = await api.Find_CNAES_ELOTECH();
       setCnaes(cnaes || []);
-
+      setLoading(false);
+      
       const navigate = useNavigate();
       
       useEffect(() => {
@@ -873,7 +875,7 @@ const toggleMenu = (id:any) => {
           navigate('/login');
         }
         }, [navigate]); 
-
+    
     } catch (error) {
       console.log(error);
     } finally {
