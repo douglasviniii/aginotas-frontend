@@ -71,81 +71,91 @@ export function Subscriptions() {
 
 
   return (
-    <div className="space-y-8">
-      <h1 className="text-2xl font-bold text-gray-900">Minha Assinatura</h1>
+    <div className="max-w-2xl mx-auto space-y-10 py-10">
+      <h1 className="text-3xl font-extrabold text-gray-900 text-center mb-8 tracking-tight">
+      <span className="bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+        Minha Assinatura
+      </span>
+      </h1>
 
-      {subscriptions.map((subscription) =>
-          <div className="bg-white rounded-xl shadow-sm p-6" key={subscription.id}>
-            <div className="flex items-start justify-between">
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                  {subscription.items[0]?.name || 'Assinatura'}
-                </h2>
-                <div className="flex items-baseline gap-2 mb-4">
-                  <span className="text-3xl font-bold text-gray-900">
-                    {`R$ ${subscription.items[0]?.pricing_scheme.price / 100 || 0}`.replace('.', ',')}
-                  </span>
-                  <span className="text-gray-500">/mês</span>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Receipt className="w-5 h-5" />
-                    <span>Notas Fiscais Ilimitadas</span>
-                  </div>
-{/*                   <div className="flex items-center gap-2 text-gray-600">
-                    <AlertCircle className="w-5 h-5" />
-                    <span>Cobrança realizada no dia {subscription.billing_day} de cada mês</span>
-                  </div> */}
-                  <div
-                    className={`flex items-center gap-2 ${
-                      subscription.status === 'active' || subscription.status === 'future' ? 'text-green-600' : 'text-red-600'
-                    }`}
-                  >
-                    <XCircle className="w-5 h-5" />
-                    <span>Status: {subscription.status === 'active' || subscription.status === 'future' ? 'Ativo' : 'Inativo'}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+      {subscriptions.map((subscription) => (
+      <div
+        className="relative bg-white rounded-2xl shadow-lg p-8 border border-blue-100 hover:shadow-2xl transition-shadow"
+        key={subscription.id}
+      >
+        <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-1 flex items-center gap-2">
+          <Receipt className="w-6 h-6 text-blue-600" />
+          {subscription.items[0]?.name || 'Assinatura'}
+          </h2>
+          <p className="text-gray-500 text-sm">{subscription.items[0]?.description}</p>
+        </div>
+        <div className="flex flex-col items-end">
+          <span className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400">
+          {`R$ ${(subscription.items[0]?.pricing_scheme.price / 100 || 0).toFixed(2)}`.replace('.', ',')}
+          </span>
+          <span className="text-gray-500 text-xs">/mês</span>
+        </div>
+        </div>
+        <div className="flex flex-wrap gap-4 mt-4">
+        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-sm font-medium">
+          <FileText className="w-4 h-4" />
+          Notas Fiscais Ilimitadas
+        </div>
+        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm font-medium">
+          <AlertCircle className="w-4 h-4" />
+          Cobrança: dia {subscription.billing_day} de cada mês
+        </div>
+        <div
+          className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
+          subscription.status === 'active' || subscription.status === 'future'
+            ? 'bg-blue-100 text-blue-700'
+            : 'bg-red-100 text-red-700'
+          }`}
+        >
+          <XCircle className="w-4 h-4" />
+          Status: {subscription.status === 'active' || subscription.status === 'future' ? 'Ativo' : 'Inativo'}
+        </div>
+        </div>
+      </div>
+      ))}
+
+      <div className="bg-white rounded-2xl shadow-lg p-8 border border-blue-100">
+      <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+        <span className="bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">Cartão de Crédito</span>
+      </h2>
+      {subscriptions[0]?.card ? (
+        <div className="flex items-center gap-6">
+        <div className="flex flex-col gap-2">
+          <p className="text-gray-700">
+          <span className="font-semibold">Nome:</span> {subscriptions[0].card.holder_name}
+          </p>
+          <p className="text-gray-700">
+          <span className="font-semibold">Número:</span> **** **** **** {subscriptions[0].card.last_four_digits}
+          </p>
+          <p className="text-gray-700">
+          <span className="font-semibold">Validade:</span> {subscriptions[0].card.exp_month}/
+          {subscriptions[0].card.exp_year}
+          </p>
+          <p
+          className={`font-semibold ${
+            subscriptions[0].card.status === 'active' ? 'text-blue-600' : 'text-red-600'
+          }`}
+          >
+          Status: {subscriptions[0].card.status === 'active' ? 'Ativo' : 'Inativo'}
+          </p>
+        </div>
+        <div className="ml-auto">
+          {/* Botão de atualizar cartão pode ser adicionado aqui */}
+        </div>
+        </div>
+      ) : (
+        <div className="flex items-center gap-2 text-gray-600">
+        Nenhum cartão cadastrado.
+        {/* Botão de cadastrar novo cartão pode ser adicionado aqui */}
+        </div>
       )}
-
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Cartão de Crédito</h2>
-        {subscriptions[0]?.card ? (
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600">
-                <span className="font-semibold">Nome:</span> {subscriptions[0].card.holder_name}
-              </p>
-              <p className="text-gray-600">
-                <span className="font-semibold">Número:</span> **** **** **** {subscriptions[0].card.last_four_digits}
-              </p>
-              <p className="text-gray-600">
-                <span className="font-semibold">Validade:</span> {subscriptions[0].card.exp_month}/
-                {subscriptions[0].card.exp_year}
-              </p>
-              <p
-                className={`text-gray-600 ${
-                  subscriptions[0].card.status === 'active' ? 'text-green-600' : 'text-red-600'
-                }`}
-              >
-                <span className="font-semibold">Status:</span>{' '}
-                {subscriptions[0].card.status === 'active' ? 'Ativo' : 'Inativo'}
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="text-gray-600">
-            Nenhum cartão cadastrado.
-            <button
-              onClick={() => alert('Abrir modal para cadastrar novo cartão')}
-              className="text-blue-600 hover:text-blue-700 ml-2"
-            >
-              Cadastrar Novo Cartão
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
