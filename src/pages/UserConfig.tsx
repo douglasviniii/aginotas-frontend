@@ -121,131 +121,164 @@ export function UserConfig() {
   }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">Configurações de Usuário</h1>
-
-      <div className="bg-white p-6 rounded-xl shadow-sm">
-        <div className="space-y-4">
-        {user && (
-          <div className="mt-4">
-            <p className="text-sm text-gray-500 mb-2">Pré-visualização:</p>
-            <img
-              src={user.picture}
-              alt="Preview"
-              className="max-h-48 rounded border"
-            />
-          </div>
-        )}
-
-        {base64Image && (
-          <div className="mt-4">
-            <button
-              type="button"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-              onClick={() => handleUpdateUser()}
-            >
-              Enviar imagem
-            </button>
-          </div>
-        )}
-        <div className="relative">
-          <label className="block text-sm font-semibold text-gray-600">Picture</label>
-          <input
-            type="file"
-            accept="image/jpeg,image/jpg"
-            className="w-full mt-2 p-3 border border-gray-300 rounded-md"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file && !["image/jpeg", "image/jpg"].includes(file.type)) {
-              toast.error("Apenas arquivos JPG são permitidos.");
-              e.target.value = "";
-              return;
-              }
-              handleImageUpload(e);
-            }}
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 py-10">
+      <div className="w-full max-w-3xl bg-white rounded-3xl shadow-2xl p-10 relative">
+      <div className="flex items-center mb-8">
+        <div className="flex-shrink-0">
+        {user && user.picture ? (
+          <img
+          src={user.picture}
+          alt="User"
+          className="w-20 h-20 rounded-full border-4 border-blue-500 shadow-lg object-cover"
           />
+        ) : (
+          <div className="w-20 h-20 rounded-full bg-blue-100 border-4 border-blue-500 flex items-center justify-center text-3xl text-blue-500 font-bold shadow-lg">
+          {user && user.nome ? user.nome[0] : "U"}
+          </div>
+        )}
         </div>
-          <div className="relative">
-            <label className="block text-sm font-semibold text-gray-600">Senha Elotech</label>
-            <input
-              type={showPassword ? "text" : "password"}
-              className="w-full mt-2 p-3 border border-gray-300 rounded-md"
-              value={senhaElotech}
-              onChange={(e) => setSenhaElotech(e.target.value)}
-            />
-            <button
-              type="button"
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? <HiEyeOff size={24} /> : <HiEye size={24} />}
-            </button>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <label className="block text-sm font-semibold text-gray-600">Homologação</label>
-            <button
-              ref={referenceRef}
-              className="p-1 text-gray-500"
-              onClick={() => setShowPopover(!showPopover)}
-            >
-              <HiOutlineQuestionMarkCircle size={20} />
-            </button>
-
-            <select
-              className="w-full mt-2 p-3 border border-gray-300 rounded-md"
-              value={homologacao}
-              onChange={(e) => setHomologacao(e.target.value)}
-            >
-              <option value="Sim">Sim</option>
-              <option value="Não">Não</option>
-            </select>
-          </div>
-
-          {showPopover && (
-            <div
-              ref={popperRef}
-              style={styles.popper}
-              {...attributes.popper}
-              className="bg-white border border-gray-300 rounded-md p-2 shadow-md"
-            >
-              <p>
-                <strong>Sim:</strong> Modo de teste.
-              </p>
-              <p>
-                <strong>Não:</strong> Modo real.
-              </p>
-            </div>
-          )}
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-600">Regime Especial de Tributação</label>
-            <input
-              type="number"
-              className="w-full mt-2 p-3 border border-gray-300 rounded-md"
-              value={regimeEspecialTributacao}
-              onChange={(e) => setRegimeEspecialTributacao(parseInt(e.target.value, 10))}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-600">Incentivo Fiscal</label>
-            <input
-              type="number"
-              className="w-full mt-2 p-3 border border-gray-300 rounded-md"
-              value={incentivoFiscal}
-              onChange={(e) => setIncentivoFiscal(parseInt(e.target.value, 10))}
-            />
-          </div>
-          <div>
-            <button
-              onClick={handleSaveSettings}
-              className="w-full mt-4 bg-blue-600 text-white p-3 rounded-md hover:bg-blue-700"
-            >
-              Salvar Configurações
-            </button>
-          </div>
+        <div className="ml-6 flex-1 min-w-0">
+        <h1 className="text-2xl md:text-3xl font-extrabold text-blue-700 mb-1 leading-tight break-words">
+          Configurações{/* &nbsp;de&nbsp;Usuário */}
+        </h1>
+        <p className="text-gray-500 text-lg truncate">{user && user.nome}</p>
+        <p className="text-gray-400 text-sm truncate">{user && user.email}</p>
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+        <div>
+        <label className="block text-sm font-semibold text-gray-600 mb-1">Alterar Foto</label>
+        <input
+          type="file"
+          accept="image/jpeg,image/jpg"
+          className="w-full p-2 border border-gray-300 rounded-md bg-blue-50 focus:ring-2 focus:ring-blue-400"
+          onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file && !["image/jpeg", "image/jpg"].includes(file.type)) {
+            toast.error("Apenas arquivos JPG são permitidos.");
+            e.target.value = "";
+            return;
+          }
+          handleImageUpload(e);
+          }}
+        />
+        {base64Image && (
+          <div className="mt-4 flex flex-col items-center">
+          <img
+            src={base64Image as string}
+            alt="Preview"
+            className="max-h-32 rounded border mb-2"
+          />
+          <button
+            type="button"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+            onClick={handleUpdateUser}
+          >
+            Enviar imagem
+          </button>
+          </div>
+        )}
+        </div>
+        <div className="bg-blue-50 rounded-xl p-4 flex flex-col gap-2">
+        <span className="text-blue-700 font-semibold">Informações da Empresa</span>
+        <div className="text-gray-700 text-sm">
+          <div><span className="font-bold">CNPJ:</span> {user?.cnpj || "-"}</div>
+          <div><span className="font-bold">Inscrição Municipal:</span> {user?.inscricaoMunicipal || "-"}</div>
+          <div><span className="font-bold">Número do Lote:</span> {user?.numeroLote || "-"}</div>
+          <div><span className="font-bold">Identificação RPS:</span> {user?.identificacaoRpsnumero || "-"}</div>
+          <div><span className="font-bold">Estado:</span> {user?.estado || "-"}</div>
+          <div><span className="font-bold">Cidade:</span> {user?.cidade || "-"}</div>
+          <div><span className="font-bold">Criado em:</span> {user?.date_created ? new Date(user.date_created).toLocaleDateString() : "-"}</div>
+        </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+        <label className="block text-sm font-semibold text-gray-600 mb-1">Senha Elotech</label>
+        <div className="relative">
+          <input
+          type={showPassword ? "text" : "password"}
+          className="w-full p-3 border border-gray-300 rounded-md bg-blue-50 focus:ring-2 focus:ring-blue-400"
+          value={senhaElotech}
+          onChange={(e) => setSenhaElotech(e.target.value)}
+          />
+          <button
+          type="button"
+          className="absolute inset-y-0 right-3 flex items-center text-blue-500"
+          onClick={() => setShowPassword(!showPassword)}
+          tabIndex={-1}
+          >
+          {showPassword ? <HiEyeOff size={22} /> : <HiEye size={22} />}
+          </button>
+        </div>
+        </div>
+        <div>
+        <label className="block text-sm font-semibold text-gray-600 mb-1 flex items-center">
+          Homologação
+          <button
+          ref={referenceRef}
+          className="ml-2 text-blue-400 hover:text-blue-600"
+          onClick={() => setShowPopover(!showPopover)}
+          type="button"
+          tabIndex={-1}
+          >
+          <HiOutlineQuestionMarkCircle size={18} />
+          </button>
+        </label>
+        <select
+          className="w-full p-3 border border-gray-300 rounded-md bg-blue-50 focus:ring-2 focus:ring-blue-400"
+          value={homologacao}
+          onChange={(e) => setHomologacao(e.target.value)}
+        >
+          <option value="Sim">Sim</option>
+          <option value="Não">Não</option>
+        </select>
+        {showPopover && (
+          <div
+          ref={popperRef}
+          style={styles.popper}
+          {...attributes.popper}
+          className="z-20 bg-white border border-blue-200 rounded-md p-3 shadow-lg mt-2 text-sm text-gray-700"
+          >
+          <p>
+            <strong>Sim:</strong> Modo de teste.
+          </p>
+          <p>
+            <strong>Não:</strong> Modo real.
+          </p>
+          </div>
+        )}
+        </div>
+        <div>
+        <label className="block text-sm font-semibold text-gray-600 mb-1">Regime Especial de Tributação</label>
+        <input
+          type="number"
+          className="w-full p-3 border border-gray-300 rounded-md bg-blue-50 focus:ring-2 focus:ring-blue-400"
+          value={regimeEspecialTributacao}
+          onChange={(e) => setRegimeEspecialTributacao(parseInt(e.target.value, 10))}
+        />
+        </div>
+        <div>
+        <label className="block text-sm font-semibold text-gray-600 mb-1">Incentivo Fiscal</label>
+        <input
+          type="number"
+          className="w-full p-3 border border-gray-300 rounded-md bg-blue-50 focus:ring-2 focus:ring-blue-400"
+          value={incentivoFiscal}
+          onChange={(e) => setIncentivoFiscal(parseInt(e.target.value, 10))}
+        />
+        </div>
+      </div>
+
+      <div className="mt-10 flex justify-end">
+        <button
+        onClick={handleSaveSettings}
+        className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-xl font-bold shadow-md hover:from-blue-700 hover:to-blue-600 transition text-lg"
+        >
+        Salvar Configurações
+        </button>
+      </div>
       </div>
     </div>
   );
