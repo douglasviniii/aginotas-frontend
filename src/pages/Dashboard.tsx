@@ -368,7 +368,7 @@ export function Dashboard() {
                       {item.customer.name || item.customer.razaoSocial || ''}
                     </td>
                     <td className="py-3 px-4 text-gray-500">
-                      {dayjs(item.date).format('DD/MM/YYYY HH:mm')}
+                        {dayjs(item.date).tz('America/Sao_Paulo').format('DD/MM/YYYY HH:mm')}
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex gap-2">
