@@ -65,7 +65,7 @@ export function Financial() {
   const statusMap = {
     "Atrasado": "Atrasado",
     "Vencimento Hoje": "A Receber",
-    "A Receber": "A Receber",
+    //"A Receber": "A Receber",
     "Parcelado": "Parcelado",
     "Recorrente": "Recorrente",
     "Pago": "Pago",
