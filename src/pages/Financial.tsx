@@ -18,7 +18,33 @@ export function Financial() {
   const [paymentType, setPaymentType] = useState("immediate"); // immediate, installment, recurring
   const [installments, setInstallments] = useState(1);
   const [startDate, setStartDate] = useState("");
-  const [receivables, setReceivables] = useState([]);
+  
+  type Customer = {
+    _id: string;
+    name?: string;
+    razaoSocial?: string;
+    // Add other customer fields as needed
+  };
+
+  type PaymentHistoryItem = {
+    date: string;
+    status: string;
+  };
+
+  type Receivable = {
+    _id: string;
+    customer: Customer;
+    value: number;
+    dueDate: string;
+    status: string;
+    typeofcharge: string;
+    description?: string;
+    isDesactivated?: boolean;
+    paymentHistory?: PaymentHistoryItem[];
+    // Add other receivable fields as needed
+  };
+
+  const [receivables, setReceivables] = useState<Receivable[]>([]);
   const [agrupado, setAgrupado] = useState({});
   const [loading, setLoading] = useState(false);
   const reportRef = useRef();
@@ -164,7 +190,7 @@ export function Financial() {
     );
   });
 
-  console.log(filteredReceivables2.filter((r) => r.typeofcharge === "Receber Agora"));
+  //console.log(filteredReceivables2.filter((r) => r.typeofcharge === "Receber Agora"));
 
   const chartData = [
     {
@@ -285,38 +311,32 @@ export function Financial() {
     return resultado;
   }
 
+  const navigate = useNavigate();
+
   async function Data() {
     const clientes = await api.find_customers_user();
     const Receipts = await api.Find_Receipts();
     setReceivables(Receipts);
     setAgrupado(agruparPorStatus(Receipts));
     setCustomers(clientes);   
-    
-    const navigate = useNavigate();
-
-    useEffect(() => {
-      const userToken = Cookies.get('token');
-      const adminToken = Cookies.get('admin_token');
-  
-      const token = userToken || adminToken;
-  
-      if (!token || isTokenExpired(token)) {
-        Cookies.remove('token');
-        Cookies.remove('admin_token');
-        navigate('/login');
-      }
-    }, [navigate]);    
   }
+
+  useEffect(() => {
+    const userToken = Cookies.get('token');
+    const adminToken = Cookies.get('admin_token');
+
+    const token = userToken || adminToken;
+
+    if (!token || isTokenExpired(token)) {
+      Cookies.remove('token');
+      Cookies.remove('admin_token');
+      navigate('/login');
+    }
+  }, [navigate]);
 
   const loadReportForMonth = async (month: number) => {
     setSelectedMonth(month);
-  
-    // Se o relatório depende de uma chamada async (como buscar dados), aguarde ela aqui
-    // Por exemplo:
-    // await fetchDataForMonth(month);
-  
-    // Depois aguarde um tempo pra garantir que o DOM se atualizou
-    await new Promise((resolve) => setTimeout(resolve, 500)); // ajuste esse delay se necessário
+    await new Promise((resolve) => setTimeout(resolve, 500)); 
   };
 
   const handleExportPDF = async () => {
@@ -702,496 +722,291 @@ export function Financial() {
     )}
 
     {view === "payments" && (
-      <div>
-            <h2 className="text-xl font-bold mb-4">Fluxo Financeiro</h2>
-            <div className="bg-white rounded-lg shadow p-4 space-y-4">
-            <div>
-            <label className="block text-sm font-medium text-gray-700">Cliente</label>
-            <select
-              required
-              value={selectedCustomer?._id || ""}
-              onChange={(e) => {
-                const id = e.target.value;
-                const customer = customers.find((c) => c._id === id);
-                setSelectedCustomer(customer);
-              }}
-              className="w-full border mt-1 p-2 rounded"
-            >
-              <option value="">Selecione um cliente</option>
-              {customers.map((customer) => (
-                <option key={customer._id} value={customer._id}>
-                  {customer.name || customer.razaoSocial}
-                </option>
-              ))}
-            </select>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-            <div>
-                <label className="block text-sm font-medium text-gray-700">Valor (R$)</label>
-                <input
-                type="number"
-                value={value}
-                placeholder="Ex: 1600,90"
-                onChange={(e) => setValue(Number(e.target.value))}
-                className="w-full border mt-1 p-2 rounded [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&]:[-moz-appearance:textfield]"
-                required
-                />
-            </div>
-
-            <div>
-                <label className="block text-sm font-medium text-gray-700">Data de Início</label>
-                <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="w-full border mt-1 p-2 rounded"
-                required
-                />
-            </div>
-            </div>
-            <div className="grid grid-cols-1 gap-4">
-              <div>
-            <label className="block text-sm font-medium text-gray-700">Descrição</label>
-                <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="w-full border mt-1 p-2 rounded"
-                required
-                />
-                </div>
-            </div>
-
-            <div>
-            <label className="block text-sm font-medium text-gray-700">Tipo de Recebimento</label>
-              <div className="flex flex-wrap gap-4 mt-2">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    value="immediate"
-                    checked={paymentType === "immediate"}
-                    onChange={() => setPaymentType("immediate")}
-                  />
-                  Receber Agora
-                </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    value="installment"
-                    checked={paymentType === "installment"}
-                    onChange={() => setPaymentType("installment")}
-                  />
-                  Parcelado
-                </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    value="recurring"
-                    checked={paymentType === "recurring"}
-                    onChange={() => setPaymentType("recurring")}
-                  />
-                  Recorrente
-                </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    value="paid"
-                    checked={paymentType === "paid"}
-                    onChange={() => setPaymentType("paid")}
-                  />
-                  Valor pago
-                </label>
-              </div>            
-            </div>
-
-            {paymentType === "installment" && (
-            <div>
-                <label className="block text-sm font-medium text-gray-700">Quantidade de Parcelas</label>
-                <input
-                type="number"
-                value={installments}
-                onChange={(e) => setInstallments(Number(e.target.value))}
-                min={1}
-                className="w-full border mt-1 p-2 rounded"
-                />
-            </div>
-            )}
-            <button
-            onClick={handleCreateReceivable}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-            >
-            Criar Recebimento
-            </button>
-            </div>
-            <div className="mt-8">
-            </div>            
+      <div className="max-w-lg mx-auto bg-white rounded-xl shadow-lg p-6 space-y-6">
+        <h2 className="text-2xl font-bold text-blue-700 mb-2 text-center">Novo Recebimento</h2>
+        <div className="space-y-4">
+          <select
+        required
+        value={selectedCustomer?._id || ""}
+        onChange={e => {
+          const id = e.target.value;
+          const customer = customers.find((c) => c._id === id);
+          setSelectedCustomer(customer);
+        }}
+        className="w-full border border-blue-200 rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 transition"
+          >
+        <option value="">Selecione o cliente</option>
+        {customers.map((customer) => (
+          <option key={customer._id} value={customer._id}>
+            {customer.name || customer.razaoSocial}
+          </option>
+        ))}
+          </select>
+          <input
+            type="number"
+            value={value}
+            placeholder="Ex: 1600,90"
+            onChange={(e) => setValue(Number(e.target.value))}
+            className="w-full border border-blue-200 rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 transition"
+            required
+            min={0}
+          />
+          <input
+            type="date"
+            value={startDate}
+            //defaultValue={startDate || new Date().toISOString().split("T")[0]}
+            onChange={e => setStartDate(e.target.value)}
+            className="w-full border border-blue-200 rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 transition"
+            required
+          />
+          <textarea
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+            className="w-full border border-blue-200 rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 transition"
+            placeholder="Descrição (opcional)"
+            rows={2}
+          />
+          <div className="flex flex-wrap gap-2 justify-center">
+{/*         <button
+          type="button"
+          onClick={() => setPaymentType("immediate")}
+          className={`px-3 py-2 rounded font-medium transition ${
+            paymentType === "immediate"
+          ? "bg-blue-600 text-white"
+          : "bg-blue-100 text-blue-700 hover:bg-blue-200"
+          }`}
+        >
+          Receber Agora
+        </button> */}
+        <button
+          type="button"
+          onClick={() => setPaymentType("installment")}
+          className={`px-3 py-2 rounded font-medium transition ${
+            paymentType === "installment"
+          ? "bg-blue-600 text-white"
+          : "bg-blue-100 text-blue-700 hover:bg-blue-200"
+          }`}
+        >
+          Parcelado
+        </button>
+        <button
+          type="button"
+          onClick={() => setPaymentType("recurring")}
+          className={`px-3 py-2 rounded font-medium transition ${
+            paymentType === "recurring"
+          ? "bg-blue-600 text-white"
+          : "bg-blue-100 text-blue-700 hover:bg-blue-200"
+          }`}
+        >
+          Recorrente
+        </button>
+        <button
+          type="button"
+          onClick={() => setPaymentType("paid")}
+          className={`px-3 py-2 rounded font-medium transition ${
+            paymentType === "paid"
+          ? "bg-blue-600 text-white"
+          : "bg-blue-100 text-blue-700 hover:bg-blue-200"
+          }`}
+        >
+          Valor Pago
+        </button>
+          </div>
+          {paymentType === "installment" && (
+        <input
+          type="number"
+          value={installments}
+          onChange={e => setInstallments(Number(e.target.value))}
+          min={1}
+          className="w-full border border-blue-200 rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 transition"
+          placeholder="Qtd. Parcelas"
+        />
+          )}
+        </div>
+        <button
+          onClick={handleCreateReceivable}
+          className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg shadow hover:bg-blue-700 transition text-lg"
+        >
+          Salvar
+        </button>
       </div>
     )}
 
     {view === "receipts" && (
-       <div>
- 
-              <h3 className="text-lg font-semibold mb-2">Recebimentos</h3>
+      <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6 space-y-6">
+        <h2 className="text-2xl font-bold text-blue-700 mb-2 text-center">Recebimentos</h2>
 
-              <div className="mb-4">
-
-                <div className="md:hidden">
-                  <select
-                    value={activeTab}
-                    onChange={(e) => setActiveTab(e.target.value)}
-                    className="w-full px-4 py-2 rounded bg-gray-200 text-gray-800"
-                  >
-                    {Object.keys(statusMap).map((tab) => (
-                      <option key={tab} value={tab}>
-                        {tab}
-                      </option>
-                    ))}
-                  </select>
-                <label className="flex items-center gap-2 w-full">
-                <input
-                  type="text"
-                  placeholder="Pesquisar..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="border rounded px-2 py-1 w-full"
-                />
-              </label>
-                </div>
-
-
-                <div className="hidden md:flex gap-2">
-                  {Object.keys(statusMap).map((tab) => (
-                    <button
-                      key={tab}
-                      onClick={() => setActiveTab(tab)}
-                      className={`px-4 py-2 rounded ${
-                        activeTab === tab
-                          ? "bg-blue-600 text-white"
-                          : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-                      } transition-all duration-200`}
-                    >
-                      {tab}
-                    </button>
-                    
-                  ))}
-                 <label className="flex items-center gap-2 w-full">
-                <input
-                  type="text"
-                  placeholder="Pesquisar..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="border rounded px-2 py-1 w-full"
-                />
-              </label>
-                </div>
-              </div> 
-              
-
-               <div className="bg-white rounded-lg shadow p-4 max-h-96 overflow-y-auto">
-                {filteredReceivables.length === 0 ? (
-                  <p className="text-gray-500">Nenhum lançamento ainda.</p>
-                ) : (
-                  <div className="flex flex-col gap-4">
-                    {filteredReceivables.map((r, idx) => (
-                      <div
-                        key={idx}
-                        className="border rounded p-3 flex flex-col gap-2 bg-gray-50"
-                      >
-                        <div className="flex justify-between items-center">
-                          <p className="font-medium max-w-[100px] md:max-w-[250px] truncate">
-                            {r.customer.name || r.customer.razaoSocial}
-                          </p>
-                          <div className="flex gap-2">
-                          {r.typeofcharge === "Recorrente" && r.isDesactivated === false ? (
-                              <button
-                                onClick={() => handleLastMonthPaid(r._id)}
-                                className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-all duration-200"
-                              >
-                                Pago último mês
-                              </button>
-                          ) : (                          
-                            r.status !== "Pago" && r.typeofcharge !== "Recorrente" && (
-                              <button
-                                onClick={() => handleMarkAsPaid(r._id)}
-                                className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-all duration-200"
-                              >
-                                Pago
-                              </button>
-                            )
-                          )}
-                          {r.typeofcharge === "Recorrente" && (
-                              <button
-                              onClick={() => handleDesactivated(r._id, r.isDesactivated)}
-                              className="px-3 py-1 text-sm bg-orange-600 text-white rounded hover:bg-orange-700 transition-all duration-200"
-                            >
-                              Desativar/Ativar
-                            </button>                            
-                          )}
-                            <button
-                              onClick={() => handleDelete(r._id)}
-                              className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition-all duration-200"
-                            >
-                              Excluir
-                            </button>
-                            {r.typeofcharge === "Pago" || r.typeofcharge === "Receber Agora" && (
-                                <button
-                                onClick={() => printReceipt(r)}
-                                className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition-all duration-200"
-                                >
-                                Baixar
-                                </button>
-                          )}
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => toggleDetails(idx)}
-                          className="text-blue-600 text-sm underline self-start"
-                        >
-                          {expandedIndex === idx ? "Ocultar detalhes" : "Ver detalhes"}
-                        </button>
-                        {expandedIndex === idx && (
-                          <div className="text-sm text-gray-700">
-                            <p>
-                              <strong>Valor:</strong> R$ {r.value.toFixed(2)}
-                            </p>
-                            {r.typeofcharge === "Recorrente" ? (
-                              <p>
-                              <strong>Dia:</strong> {new Date(r.dueDate).getUTCDate()}
-                              </p>
-                            ):(
-                            <p>
-                              <strong>Vencimento:</strong> {r.dueDate}
-                            </p>
-                            )}
-                            <p>
-                              <strong>Descrição:</strong> {r.description}
-                            </p>
-                            <p>
-                              <strong>Tipo:</strong> {r.status}
-                              <strong>Tipo:</strong> {r.typeofcharge}
-                            </p>
-                            {r.typeofcharge === "Recorrente" && (
-                              <p>
-                                <strong>Status:</strong> {r.isDesactivated ? "Desativado" : "Ativo"}
-                              </p>                            
-                            )}                             
-                            {r.typeofcharge === "Recorrente" && (
-                              <p>
-                                <strong>Pagamento:</strong> {r.paymentHistory?.filter(p => p.status === "Pago").length} de {r.paymentHistory?.length} parcelas pagas
-                              </p>                            
-                            )}   
-                            {r.typeofcharge === "Recorrente" && (
-                              <p>
-                                <strong>Total pago:</strong> R$ {(r.paymentHistory?.filter(p => p.status === "Pago").length * r.value).toFixed(2)}
-                              </p>                            
-                            )}                          
-                            {r.typeofcharge === "Recorrente" && (
-                              <div style={{ maxHeight: '150px', overflowY: 'auto', border: '1px solid #ccc', padding: '8px', borderRadius: '8px' }}>
-                              {r.paymentHistory?.length > 0 ? (
-                                r.paymentHistory.map((item, index) => (
-                                  <div key={index} style={{ marginBottom: '8px' }}>
-                                      <strong>Data:</strong> {new Date(item.date).toLocaleDateString('pt-BR', {
-                                        timeZone: 'UTC'
-                                      })}
-                                    <div><strong>Status:</strong> {item.status}</div>
-                                  </div>
-                                ))
-                              ) : (
-                                <div>Nenhum histórico disponível.</div>
-                              )}
-                            </div>                              
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-      </div> 
-
-    )}
-    </div>
-  )
-}
-
-/* const chartData = [
-  {
-    name: "A Receber",
-    total: receivables.filter((r) => r.status === "A Receber").reduce((sum, r) => sum + r.value, 0),
-  },
-  {
-    name: "Pago",
-    total: receivables.filter((r) => r.status === "Pago").reduce((sum, r) => sum + r.value, 0),
-  },
-  {
-    name: "Recorrente",
-    total: receivables.filter((r) => r.status === "Recorrente").reduce((sum, r) => sum + r.value, 0),
-  },
-  {
-    name: "Parcelamentos",
-    total: receivables.filter((r) => r.status === "Parcelado").reduce((sum, r) => sum + r.value, 0),
-  },
-  {
-    name: "Em atraso",
-    total: (agrupado['Em Atraso'] || []).length 
-  }
-];   */
-
-{/*     <div className="flex gap-4 mb-6">
-      <button
-        onClick={() => setView("dashboard")}
-        className={`px-4 py-2 rounded font-medium ${
-          view === "dashboard" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
-        }`}
-      >
-        Dashboard
-      </button>
-      <button
-        onClick={() => setView("payments")}
-        className={`px-4 py-2 rounded font-medium ${
-          view === "payments" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
-        }`}
-      >
-        Pagamentos
-      </button>
-      <button
-        onClick={() => setView("receipts")}
-        className={`px-4 py-2 rounded font-medium ${
-          view === "receipts" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"
-        }`}
-      >Recebimentos
-      </button>
-    
-    </div> */}
-
-
-/*       <div>
-    <h3 className="text-lg font-semibold mb-4">Recebimentos</h3>
-
-
-    <div className="mb-4">
-      <div className="md:hidden flex flex-col gap-2">
-        <select
-          value={activeTab}
-          onChange={(e) => setActiveTab(e.target.value)}
-          className="w-full px-4 py-2 rounded bg-gray-200 text-gray-800"
-        >
-          {Object.keys(statusMap).map((tab) => (
-            <option key={tab} value={tab}>
-              {tab}
-            </option>
-          ))}
-        </select>
-        <input
-          type="text"
-          placeholder="Pesquisar..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="border rounded px-2 py-1 w-full"
-        />
-      </div>
-
-      <div className="hidden md:flex gap-2 items-center">
+        {/* Tabs + Search */}
+        <div className="flex flex-col gap-3 md:gap-4 mb-4">
+          {/* Tabs */}
+          <div className="flex flex-row flex-wrap w-full md:w-auto gap-2">
         {Object.keys(statusMap).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`
-              whitespace-nowrap  
-              px-4 py-2         
-              md:px-6 md:py-3   
-              rounded 
-              ${
-                activeTab === tab
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-              } 
-              transition-all duration-200
-            `}
+            className={`px-3 py-2 rounded font-medium transition text-sm md:text-base
+          ${activeTab === tab
+            ? "bg-blue-600 text-white shadow"
+            : "bg-blue-100 text-blue-700 hover:bg-blue-200"
+          }`}
+            style={{ minWidth: 0, wordBreak: "break-word", flex: "1 1 45%", maxWidth: "100%" }}
           >
-            {tab}
+            <span className="whitespace-nowrap">{tab}</span>
           </button>
         ))}
+          </div>
+          {/* Search */}
+          <div className="w-full md:w-56 md:mx-auto">
         <input
           type="text"
-          placeholder="Pesquisar..."
+          placeholder="Pesquisar cliente..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="border rounded px-2 py-1 w-full"
+          className="border border-blue-200 rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 transition w-full"
         />
-      </div>
-    </div>
+          </div>
+        </div>
 
-
-    <div className="bg-white rounded-lg shadow p-4 max-h-96 overflow-y-auto">
-      {filteredReceivables.length === 0 ? (
-        <p className="text-gray-500">Nenhum lançamento ainda.</p>
-      ) : (
-        <div className="flex flex-col gap-4">
-          {filteredReceivables.map((r, idx) => (
-            <div
-              key={idx}
-              className={`rounded-xl p-4 ${
-                r.status === "Pago" ? "bg-green-100" : "bg-gray-300"
-              }`}
+        {/* List */}
+        <div className="space-y-3 max-h-96 overflow-y-auto">
+          {filteredReceivables.length === 0 ? (
+        <div className="text-gray-400 text-center py-12">
+          <svg className="mx-auto mb-2 w-10 h-10 text-blue-200" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 17v-2a4 4 0 018 0v2M12 7a4 4 0 110 8 4 4 0 010-8z" />
+          </svg>
+          Nenhum lançamento ainda.
+        </div>
+          ) : (
+        filteredReceivables.map((r, idx) => (
+          <div
+            key={idx}
+            className={`rounded-xl p-4 shadow flex flex-col gap-2 border transition
+          ${r.status === "Pago" ? "bg-green-50 border-green-200" : "bg-blue-50 border-blue-100"}
+            `}
+          >
+            <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-col">
+            <span className="font-bold text-blue-800 truncate max-w-[180px]">{r.customer.name || r.customer.razaoSocial}</span>
+            <span className="text-xs text-gray-500">{r.description}</span>
+          </div>
+          <span className="font-bold text-lg text-blue-700">
+            R$ {Number(r.value).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+          </span>
+            </div>
+            <div className="flex flex-wrap gap-2 mt-2">
+          {r.typeofcharge === "Recorrente" && r.isDesactivated === false ? (
+            <button
+              onClick={() => handleLastMonthPaid(r._id)}
+              className="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition"
             >
-              <div className="flex justify-between items-center">
-                <p className="font-bold text-sm md:text-base">
-                  {r.customer.name || r.customer.razaoSocial}
-                </p>
-                {r.status !== "Pago" && (
-                  <div className="flex gap-2 items-center">
-                  {r.status !== "Pago" && r.status !== "Atrasado" && r.status !== "A Receber" ? (
-                    <button
-                      onClick={() => handleMarkAsPaid(r._id)}
-                      className="text-sm px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
-                    >
-                      Último mês pago
-                    </button>
-                    ):(
-                      <button
-                      onClick={() => handleMarkAsPaid(r._id)}
-                      className="text-sm px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700"
-                    >
-                      Pago
-                    </button>                      
-                    )}
-                    <button className="text-sm px-3 py-1 rounded bg-gray-700 text-white hover:bg-gray-800">
-                      Desativar
-                    </button> 
-                    <button
-                      onClick={() => handleDelete(r._id)}
-                      className="text-sm px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700"
-                    >
-                      Excluir
-                    </button>
-                    <button
-                      onClick={() => {toggleDetails(idx), setRecurrenceTime(calcularTempoDeRecorrencia(r.creationDate, r.dueDate))}}
-                      className="text-xl text-red-600 transform transition-transform duration-300"
-                    >
-                      {expandedIndex === idx ? "▲" : "▼"}
-                    </button>
-                  </div>
+              Pago último mês
+            </button>
+          ) : (
+            r.status !== "Pago" && r.typeofcharge !== "Recorrente" && (
+              <button
+            onClick={() => handleMarkAsPaid(r._id)}
+            className="px-3 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700 transition"
+              >
+            Marcar como Pago
+              </button>
+            )
+          )}
+          {r.typeofcharge === "Recorrente" && (
+            <button
+              onClick={() => handleDesactivated(r._id, r.isDesactivated)}
+              className={`px-3 py-1 text-xs rounded transition
+            ${r.isDesactivated ? "bg-orange-300 text-orange-900" : "bg-orange-600 text-white hover:bg-orange-700"}
+              `}
+            >
+              {r.isDesactivated ? "Ativar" : "Desativar"}
+            </button>
+          )}
+          <button
+            onClick={() => handleDelete(r._id)}
+            className="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition"
+          >
+            Excluir
+          </button>
+          {(r.typeofcharge === "Pago" || r.typeofcharge === "Receber Agora" || (r.typeofcharge === "Parcelado" && r.status === "Pago")) && (
+            <button
+              onClick={() => printReceipt(r)}
+              className="px-3 py-1 text-xs bg-blue-700 text-white rounded hover:bg-blue-800 transition"
+            >
+              Baixar Recibo
+            </button>
+          )}
+          <button
+            onClick={() => toggleDetails(idx)}
+            className="ml-auto px-2 py-1 text-xs text-blue-600 underline hover:text-blue-800 transition"
+          >
+            {expandedIndex === idx ? "Ocultar detalhes" : "Ver detalhes"}
+          </button>
+            </div>
+            {expandedIndex === idx && (
+          <div className="mt-2 bg-blue-50 rounded p-3 text-sm text-blue-900 space-y-1 border border-blue-100">
+            <div>
+              <strong>Valor:</strong> R$ {Number(r.value).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+            </div>
+            {r.typeofcharge === "Recorrente" ? (
+              <div>
+            <strong>Dia:</strong> {new Date(r.dueDate).getUTCDate()}
+              </div>
+            ) : (
+              <div>
+            <strong>Vencimento:</strong> {r.dueDate}
+              </div>
+            )}
+            <div>
+              <strong>Status:</strong> {r.status}
+            </div>
+            <div>
+              <strong>Tipo:</strong> {r.typeofcharge}
+            </div>
+            {r.typeofcharge === "Recorrente" && (
+              <>
+            <div>
+              <strong>Situação:</strong> {r.isDesactivated ? "Desativado" : "Ativo"}
+            </div>
+            <div>
+              <strong>Pagamentos:</strong> {r.paymentHistory?.filter(p => p.status === "Pago").length} de {r.paymentHistory?.length} pagos
+            </div>
+            <div>
+              <strong>Total pago:</strong> R$ {(r.paymentHistory?.filter(p => p.status === "Pago").length * r.value).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+            </div>
+            <div className="max-h-24 overflow-y-auto border border-blue-100 rounded p-2 bg-white mt-2">
+              {r.paymentHistory?.length > 0 ? (
+                r.paymentHistory.map((item, index) => (
+              <div key={index} className="flex justify-between text-xs py-0.5">
+                <span>
+                  <strong>Data:</strong> {new Date(item.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
+                </span>
+                <span>
+                  <strong>Status:</strong> {item.status}
+                </span>
+                {item.status === "Pago" && (
+                  <button
+                    onClick={() => printReceipt({ ...r, dueDate: item.date })}
+                    className="ml-2 px-2 py-1 text-xs bg-blue-700 text-white rounded hover:bg-blue-800 transition"
+                  >
+                    Baixar Recibo
+                  </button>
                 )}
               </div>
-
-              {expandedIndex === idx && (
-                <div className="mt-4 text-sm text-gray-800">
-                  <p><strong>Recorrência:</strong> R$ {r.value.toFixed(2)}</p>
-                  <p><strong>Data de início:</strong> {r.creationDate}</p>
-                  <p><strong>Dia de vencimento:</strong> {r.dueDate}</p>
-                  <p><strong>Descrição:</strong> {r.description}</p>
-                  <p><strong>Status:</strong> {r.status}</p>
-                  <p><strong>Tempo de recorrência:</strong> {recurrenceTime}</p>
-                  {r.history?.map((item, index) => (
-                    <p key={index}>{item.date} {item.status}</p>
-                  ))}
-                </div>
+                ))
+              ) : (
+                <div className="text-gray-400">Nenhum histórico disponível.</div>
               )}
             </div>
-          ))}
+              </>
+            )}
+          </div>
+            )}
+          </div>
+        ))
+          )}
         </div>
-      )}
+      </div>
+    )}
     </div>
-    </div> */
+  )
+}
