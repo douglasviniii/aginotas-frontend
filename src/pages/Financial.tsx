@@ -675,12 +675,12 @@ export function Financial() {
       <div ref={reportRef} className="bg-white rounded-lg shadow p-6 space-y-6">
         <h2 className="text-xl font-bold">Visão Geral Financeira</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-gray-100 p-4 rounded shadow">
+{/*           <div className="bg-gray-100 p-4 rounded shadow">
             <p className="text-sm text-gray-600">Total a Receber</p>
             <p className="text-lg font-bold">
               R$ {chartData[0].total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
-          </div>
+          </div> */}
           <div className="bg-gray-100 p-4 rounded shadow">
             <p className="text-sm text-gray-600">Total Pago</p>
             <p className="text-lg font-bold">R$ 
