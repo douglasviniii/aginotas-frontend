@@ -1276,173 +1276,187 @@ const toggleMenu = (id:any) => {
         />
       </div>
 
+      {/* CLIENTES TABLE/GRID - DESKTOP & MOBILE */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-
         {/* DESKTOP TABLE */}
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
-            <thead>
-              <tr className="bg-gray-50">
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Nome</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">CNPJ/CPF</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Email</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Telefone</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Status</th>
-                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-600">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredCustomers.map((customer) => (
-                <tr key={customer._id} className="border-t border-gray-100">
-                  <td className="py-3 px-4 text-gray-900">{customer.name || customer.razaoSocial}</td>
-                  <td className="py-3 px-4 text-gray-600">{customer.cnpj === 'undefined' ? customer.cpf : customer.cnpj}</td>
-                  <td className="py-3 px-4 text-gray-600">{customer.email}</td>
-                  <td className="py-3 px-4 text-gray-600">{customer.phone}</td>
-                  <td className="py-3 px-4">
-                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${customer.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
-                      {customer.status === 'active' ? 'Ativo' : 'Inativo'}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                          <div className="flex justify-end gap-2">
-
-                            <button
-                              onClick={() => handleConfigureInvoice(customer)}
-                              className="text-blue-600 hover:text-blue-700"
-                              title="Gerar Nota Fiscal"
-                            >
-                              <File className="w-5 h-5" />
-                            </button>
-
-
-                            <button
-                              onClick={() => handleConfigureSubscription(customer)}
-                              className="text-blue-600 hover:text-blue-700"
-                              title="Emissão automizada"
-                            >
-                              <Calendar className="w-5 h-5" />
-                            </button>
-
-
-                              <button
-                                onClick={() => handleViewScheduleHistory(customer._id)}
-                                className="text-blue-600 hover:text-blue-700"
-                                title="Gerenciar agendamentos"
-                              >
-                                <Clock className="w-5 h-5" />
-                              </button>
-
-
-                            <button
-                              onClick={() => handleViewInvoiceHistory(customer)}
-                              className="text-blue-600 hover:text-blue-800"
-                              title="Ver Histórico"
-                            >
-                              <FaEye /> 
-                            </button>
-
-
-                            {customer.status === 'active' ? (
-                              <button
-                                onClick={() => handleDeactivateCustomer(customer._id)}
-                                className="text-gray-600 hover:text-gray-900"
-                                title="Finalizar Contrato"
-                              >
-                                <XCircle className="w-5 h-5" />
-                              </button>
-                            ) : (
-                              <button
-                                onClick={() => handleActiveCustomer(customer._id)}
-                                className="text-gray-600 hover:text-gray-900"
-                                title="Ativar Contrato"
-                              >
-                                <Check className="w-5 h-5" />
-                              </button>
-                            )}
-
-                            
-                            <button
-                              onClick={() => handleViewModalEditCustomer(customer)}
-                              className="text-blue-600 hover:text-blue-700"
-                              title="Editar Cliente"
-                            >
-                              <Edit className="w-5 h-5" />
-                            </button>
-
-                            {!invoiceHistory.some(invoice => invoice.customer_id === customer._id) && (
-                              <button
-                                onClick={() => handleDeleteCustomer(customer._id)}
-                                className="text-red-600 hover:text-red-700"
-                                title="Excluir"
-                              >
-                                <Trash2 className="w-5 h-5" />
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                </tr>
-              ))}
-            </tbody>
+        <thead>
+          <tr className="bg-gray-50">
+            <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Nome</th>
+            <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">CNPJ/CPF</th>
+            <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Status</th>
+            <th className="text-right py-3 px-4 text-sm font-semibold text-gray-600">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredCustomers.length === 0 ? (
+            <tr>
+          <td colSpan={4} className="py-8 text-center text-gray-400">
+            Nenhum cliente encontrado.
+          </td>
+            </tr>
+          ) : (
+            filteredCustomers.map((customer) => (
+          <tr key={customer._id} className="border-t border-gray-100 group hover:bg-blue-50 transition">
+            <td className="py-3 px-4 text-gray-900 flex items-center gap-2">
+              {/* Avatar com iniciais */}
+              <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm">
+            {(customer.name || customer.razaoSocial || '')
+              .split(' ')
+              .map((n) => n[0])
+              .join('')
+              .slice(0, 2)
+              .toUpperCase()}
+              </div>
+              <span>{customer.name || customer.razaoSocial}</span>
+            </td>
+            <td className="py-3 px-4 text-gray-600">{customer.cnpj === 'undefined' ? customer.cpf : customer.cnpj}</td>
+            <td className="py-3 px-4">
+              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${customer.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+            {customer.status === 'active' ? 'Ativo' : 'Inativo'}
+              </span>
+            </td>
+            <td className="py-3 px-4 text-right">
+              <div className="flex justify-end gap-2">
+            <button
+              onClick={() => handleConfigureInvoice(customer)}
+              className="text-blue-600 hover:text-blue-700"
+              title="Gerar Nota Fiscal"
+            >
+              <File className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => handleConfigureSubscription(customer)}
+              className="text-blue-600 hover:text-blue-700"
+              title="Emissão automatizada"
+            >
+              <Calendar className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => handleViewScheduleHistory(customer._id)}
+              className="text-blue-600 hover:text-blue-700"
+              title="Gerenciar agendamentos"
+            >
+              <Clock className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => handleViewInvoiceHistory(customer)}
+              className="text-blue-600 hover:text-blue-800"
+              title="Ver Histórico"
+            >
+              <FaEye />
+            </button>
+            {customer.status === 'active' ? (
+              <button
+                onClick={() => handleDeactivateCustomer(customer._id)}
+                className="text-gray-600 hover:text-gray-900"
+                title="Finalizar Contrato"
+              >
+                <XCircle className="w-5 h-5" />
+              </button>
+            ) : (
+              <button
+                onClick={() => handleActiveCustomer(customer._id)}
+                className="text-gray-600 hover:text-gray-900"
+                title="Ativar Contrato"
+              >
+                <Check className="w-5 h-5" />
+              </button>
+            )}
+            <button
+              onClick={() => handleViewModalEditCustomer(customer)}
+              className="text-blue-600 hover:text-blue-700"
+              title="Editar Cliente"
+            >
+              <Edit className="w-5 h-5" />
+            </button>
+            {!invoiceHistory.some(invoice => invoice.customer_id === customer._id) && (
+              <button
+                onClick={() => handleDeleteCustomer(customer._id)}
+                className="text-red-600 hover:text-red-700"
+                title="Excluir"
+              >
+                <Trash2 className="w-5 h-5" />
+              </button>
+            )}
+              </div>
+            </td>
+          </tr>
+            ))
+          )}
+        </tbody>
           </table>
         </div>
 
-        {/* MOBILE VERSION */}
-        <div className="md:hidden">
-          {filteredCustomers.map((customer) => (
-            <div key={customer._id} className="border-t border-gray-100 p-4 flex justify-between items-center">
-              <div>
-                <p className="text-gray-900 font-medium">{customer.name || customer.razaoSocial}</p>
-              </div>
-
-              <div className="relative">
-        {/* Botão para abrir menu */}
-        <button onClick={() => toggleMenu(customer._id)} className="text-gray-600 hover:text-gray-900">
-          <CircleEllipsis className="w-5 h-5" />
-        </button>
-
-        {/* Modal centralizado */}
-        {openMenuId === customer._id && (
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50">
-            <div className="relative w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow-lg p-4">
-              {/* Botão de fechar */}
-              <button
-                onClick={() => setOpenMenuId(null)}
-                className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-xl font-bold"
-              >
-                ×
-              </button>
-
-              {/* Conteúdo do menu */}
-              <div className="space-y-2 mt-6">
+        {/* MOBILE VERSION - GRID CARDS */}
+        <div className="md:hidden grid grid-cols-1 gap-4 p-4">
+          {filteredCustomers.length === 0 ? (
+        <div className="text-center text-gray-400 py-8">Nenhum cliente encontrado.</div>
+          ) : (
+        filteredCustomers.map((customer) => (
+          <div
+            key={customer._id}
+            className="bg-blue-100 border border-blue-200 rounded-lg p-4 flex items-center justify-between shadow-sm"
+          >
+            <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-blue-200 text-blue-700 flex items-center justify-center font-bold text-lg">
+            {(customer.name || customer.razaoSocial || '')
+              .split(' ')
+              .map((n) => n[0])
+              .join('')
+              .slice(0, 2)
+              .toUpperCase()}
+          </div>
+          <div>
+            <div className="font-semibold text-gray-900">{customer.name || customer.razaoSocial}</div>
+            <div className="text-xs text-gray-500">{customer.cnpj === 'undefined' ? customer.cpf : customer.cnpj}</div>
+            <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium ${customer.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+              {customer.status === 'active' ? 'Ativo' : 'Inativo'}
+            </span>
+          </div>
+            </div>
+            <div className="relative">
+          {/* Botão para abrir menu */}
+          <button onClick={() => toggleMenu(customer._id)} className="text-gray-600 hover:text-gray-900">
+            <CircleEllipsis className="w-5 h-5" />
+          </button>
+          {/* Modal centralizado */}
+          {openMenuId === customer._id && (
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50">
+              <div className="relative w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow-lg p-4">
+            {/* Botão de fechar */}
+            <button
+              onClick={() => setOpenMenuId(null)}
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-xl font-bold"
+            >
+              ×
+            </button>
+            {/* Conteúdo do menu */}
+            <div className="space-y-2 mt-6">
               <button onClick={() => { handleConfigureInvoice(customer); setOpenMenuId(null); }} className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-blue-600">Gerar Nota Fiscal</button>
-
               <button onClick={() => { handleConfigureSubscription(customer); setOpenMenuId(null); }} className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-blue-600">Emissão Automatizada</button>
-
               <button onClick={() => { handleViewScheduleHistory(customer._id); setOpenMenuId(null); }} className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-blue-600">Gerenciar Agendamentos</button>
-
               <button onClick={() => { handleViewInvoiceHistory(customer); setOpenMenuId(null); }} className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-blue-600">Ver Histórico</button>
-
               {customer.status === 'active' ? (
                 <button onClick={() => { handleDeactivateCustomer(customer._id); setOpenMenuId(null); }} className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-600">Finalizar Contrato</button>
               ) : (
                 <button onClick={() => { handleActiveCustomer(customer._id); setOpenMenuId(null); }} className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-600">Ativar Contrato</button>
               )}
-
               <button onClick={() => { handleViewModalEditCustomer(customer); setOpenMenuId(null); }} className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-blue-600">Editar Cliente</button>
-
               {!invoiceHistory.some(invoice => invoice.customer_id === customer._id) && (
                 <button onClick={() => { handleDeleteCustomer(customer._id); setOpenMenuId(null); }} className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-red-600">Excluir</button>
               )}
             </div>
+              </div>
+            </div>
+          )}
             </div>
           </div>
-        )}
-      </div>
-              
-            </div>
-          ))}
+        ))
+          )}
         </div>
-      </div>      
+      </div>
 
       {/* Modal de Novo Cliente */}
       {isModalOpen && (
