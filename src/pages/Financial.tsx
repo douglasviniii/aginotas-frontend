@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { api } from "../lib/api";
 import { toast } from 'sonner';
@@ -15,7 +15,7 @@ export function Financial() {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [value, setValue] = useState();
   const [description, setDescription] = useState('');
-  const [paymentType, setPaymentType] = useState("immediate"); // immediate, installment, recurring
+  const [paymentType, setPaymentType] = useState("immediate");
   const [installments, setInstallments] = useState(1);
   const [startDate, setStartDate] = useState("");
   
@@ -52,7 +52,7 @@ export function Financial() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
-  const [recurrenceTime, setRecurrenceTime] = useState('');
+  const navigate = useNavigate();
 
   const toggleDetails = (idx: number) => {
     setExpandedIndex((prev) => (prev === idx ? null : idx));
@@ -115,7 +115,6 @@ export function Financial() {
     .filter((r) =>
       (r.customer?.name || r.customer?.razaoSocial || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
-
 
   const handleCreateReceivable = async () => {
     if (!value){return;};
@@ -190,8 +189,6 @@ export function Financial() {
     );
   });
 
-  //console.log(filteredReceivables2.filter((r) => r.typeofcharge === "Receber Agora"));
-
   const chartData = [
     {
       name: "Pago",
@@ -218,8 +215,6 @@ export function Financial() {
         .reduce((sum, r) => sum + Number(r.value), 0),
     }
   ];
-
-  //console.log(chartData);
 
   const handleMarkAsPaid = async (id: string) => {
     try {
@@ -309,29 +304,6 @@ export function Financial() {
     return resultado;
   }
 
-  const navigate = useNavigate();
-
-  async function Data() {
-    const clientes = await api.find_customers_user();
-    const Receipts = await api.Find_Receipts();
-    setReceivables(Receipts);
-    setAgrupado(agruparPorStatus(Receipts));
-    setCustomers(clientes);   
-  }
-
-  useEffect(() => {
-    const userToken = Cookies.get('token');
-    const adminToken = Cookies.get('admin_token');
-
-    const token = userToken || adminToken;
-
-    if (!token || isTokenExpired(token)) {
-      Cookies.remove('token');
-      Cookies.remove('admin_token');
-      navigate('/login');
-    }
-  }, [navigate]);
-
   const loadReportForMonth = async (month: number) => {
     setSelectedMonth(month);
     await new Promise((resolve) => setTimeout(resolve, 500)); 
@@ -397,33 +369,32 @@ export function Financial() {
     pdf.save(`relatorio-anual-${year}.pdf`);
   };
 
-  useEffect(() => {
+  async function Data() {
     setLoading(true);
-    Data();
+    const clientes = await api.find_customers_user();
+    const Receipts = await api.Find_Receipts();
+    setReceivables(Receipts);
+    setAgrupado(agruparPorStatus(Receipts));
+    setCustomers(clientes);   
     setLoading(false);
-  }, []);
+  }
 
+  useEffect(() => {
+    const userToken = Cookies.get('token');
+    const adminToken = Cookies.get('admin_token');
 
-/*   function calcularTempoDeRecorrencia(creationDate: string, dueDate: string): string {
-    const start = new Date(creationDate);
-    const end = new Date(dueDate);
-  
-    let months =
-      (end.getFullYear() - start.getFullYear()) * 12 +
-      (end.getMonth() - start.getMonth());
-  
-    // Se o dia do mês da data de vencimento for maior ou igual ao da criação, soma +1 mês
-    if (end.getDate() >= start.getDate()) {
-      months += 1;
+    const token = userToken || adminToken;
+
+    if (!token || isTokenExpired(token)) {
+      Cookies.remove('token');
+      Cookies.remove('admin_token');
+      navigate('/login');
     }
-  
-    return `${months} ${months === 1 ? 'mês' : 'meses'}`;
-  } */
+  }, [navigate]);
 
-  /**
-   * 
-   * @param {any} receivable 
-   */
+  useEffect(() => {
+    Data();
+  }, []);
 
   function printReceipt(receivable: any) {
     if (!receivable) return;
@@ -518,9 +489,7 @@ export function Financial() {
     );
   }
 
-
   if (loading) return <div>Carregando...</div>;
-
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -670,50 +639,80 @@ export function Financial() {
     </div>
 
     {view === "dashboard" && (
-      <div ref={reportRef} className="bg-white rounded-lg shadow p-6 space-y-6">
-        <h2 className="text-xl font-bold">Visão Geral Financeira</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-{/*           <div className="bg-gray-100 p-4 rounded shadow">
-            <p className="text-sm text-gray-600">Total a Receber</p>
-            <p className="text-lg font-bold">
-              R$ {chartData[0].total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </p>
-          </div> */}
-          <div className="bg-gray-100 p-4 rounded shadow">
-            <p className="text-sm text-gray-600">Total Pago</p>
-            <p className="text-lg font-bold">R$ 
-            {chartData[0].total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </p>
+      <div
+        ref={reportRef}
+        className="bg-gradient-to-br from-blue-50 to-white rounded-2xl shadow-xl p-8 space-y-8 border border-blue-100"
+      >
+        <h2 className="text-2xl font-extrabold text-blue-800 flex items-center gap-2">
+          <svg className="w-7 h-7 text-blue-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 10c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
+          </svg>
+          Visão Geral Financeira
+        </h2>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="bg-white p-5 rounded-xl shadow flex flex-col items-center border border-blue-100 hover:shadow-lg transition">
+        <span className="text-xs text-gray-500 mb-1">Total Pago</span>
+        <span className="text-2xl font-bold text-green-600">
+          R$ {chartData[0].total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+        <svg className="w-6 h-6 mt-2 text-green-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
           </div>
-          <div className="bg-gray-100 p-4 rounded shadow">
-            <p className="text-sm text-gray-600">Recorrente</p>
-            <p className="text-lg font-bold">R$ 
-              {chartData[1].total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+          <div className="bg-white p-5 rounded-xl shadow flex flex-col items-center border border-blue-100 hover:shadow-lg transition">
+        <span className="text-xs text-gray-500 mb-1">Recorrente</span>
+        <span className="text-2xl font-bold text-blue-600">
+          R$ {chartData[1].total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+        <svg className="w-6 h-6 mt-2 text-blue-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2" />
+        </svg>
           </div>
-          <div className="bg-gray-100 p-4 rounded shadow">
-            <p className="text-sm text-gray-600">Em atraso</p>
-            <p className="text-lg font-bold">R$ 
-              {chartData[3].total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+          <div className="bg-white p-5 rounded-xl shadow flex flex-col items-center border border-blue-100 hover:shadow-lg transition">
+        <span className="text-xs text-gray-500 mb-1">Em atraso</span>
+        <span className="text-2xl font-bold text-red-600">
+          R$ {chartData[3].total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+        <svg className="w-6 h-6 mt-2 text-red-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3" />
+          <circle cx="12" cy="12" r="10" />
+        </svg>
           </div>
-          <div className="bg-gray-100 p-4 rounded shadow">
-            <p className="text-sm text-gray-600">Clientes</p>
-            <p className="text-lg font-bold">{customers.length}</p>
+          <div className="bg-white p-5 rounded-xl shadow flex flex-col items-center border border-blue-100 hover:shadow-lg transition">
+        <span className="text-xs text-gray-500 mb-1">Clientes</span>
+        <span className="text-2xl font-bold text-blue-800">{customers.length}</span>
+        <svg className="w-6 h-6 mt-2 text-blue-300" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m9-4a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
           </div>
-          <div className="bg-gray-100 p-4 rounded shadow">
-            <p className="text-sm text-gray-600">Parcelamentos</p>
-            <p className="text-lg font-bold">R$ 
-              {chartData[2].total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+          <div className="bg-white p-5 rounded-xl shadow flex flex-col items-center border border-blue-100 hover:shadow-lg transition">
+        <span className="text-xs text-gray-500 mb-1">Parcelamentos</span>
+        <span className="text-2xl font-bold text-yellow-600">
+          R$ {chartData[2].total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+        <svg className="w-6 h-6 mt-2 text-yellow-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+          <rect x="4" y="4" width="16" height="16" rx="2" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h8M8 14h8" />
+        </svg>
           </div>
         </div>
 
-        <div className="h-64">
+        <div className="h-72 bg-white rounded-xl shadow border border-blue-100 flex items-center justify-center p-4">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="total" fill="#3b82f6" />
-            </BarChart>
+        <BarChart data={chartData} barCategoryGap={30}>
+          <XAxis dataKey="name" tick={{ fontSize: 13, fill: "#2563eb" }} />
+          <YAxis tick={{ fontSize: 13, fill: "#2563eb" }} />
+          <Tooltip
+            contentStyle={{ background: "#f1f5f9", borderRadius: 8, border: "1px solid #3b82f6" }}
+            labelStyle={{ color: "#1e293b", fontWeight: "bold" }}
+            cursor={{ fill: "#dbeafe", opacity: 0.3 }}
+            formatter={(value: number) =>
+          `R$ ${Number(value).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`
+            }
+          />
+          <Bar dataKey="total" fill="#3b82f6" radius={[8, 8, 0, 0]} />
+        </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
@@ -752,7 +751,6 @@ export function Financial() {
           <input
             type="date"
             value={startDate}
-            //defaultValue={startDate || new Date().toISOString().split("T")[0]}
             onChange={e => setStartDate(e.target.value)}
             className="w-full border border-blue-200 rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 transition"
             required
@@ -765,17 +763,6 @@ export function Financial() {
             rows={2}
           />
           <div className="flex flex-wrap gap-2 justify-center">
-{/*         <button
-          type="button"
-          onClick={() => setPaymentType("immediate")}
-          className={`px-3 py-2 rounded font-medium transition ${
-            paymentType === "immediate"
-          ? "bg-blue-600 text-white"
-          : "bg-blue-100 text-blue-700 hover:bg-blue-200"
-          }`}
-        >
-          Receber Agora
-        </button> */}
         <button
           type="button"
           onClick={() => setPaymentType("installment")}
@@ -833,10 +820,7 @@ export function Financial() {
     {view === "receipts" && (
       <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6 space-y-6">
         <h2 className="text-2xl font-bold text-blue-700 mb-2 text-center">Recebimentos</h2>
-
-        {/* Tabs + Search */}
         <div className="flex flex-col gap-3 md:gap-4 mb-4">
-          {/* Tabs */}
           <div className="flex flex-row flex-wrap w-full md:w-auto gap-2">
         {Object.keys(statusMap).map((tab) => (
           <button
@@ -853,7 +837,6 @@ export function Financial() {
           </button>
         ))}
           </div>
-          {/* Search */}
           <div className="w-full md:w-56 md:mx-auto">
         <input
           type="text"
@@ -864,8 +847,6 @@ export function Financial() {
         />
           </div>
         </div>
-
-        {/* List */}
         <div className="space-y-3 max-h-96 overflow-y-auto">
           {filteredReceivables.length === 0 ? (
         <div className="text-gray-400 text-center py-12">
