@@ -4,10 +4,10 @@ import { toast } from 'sonner';
 import { FaEye } from 'react-icons/fa';
 import { api } from '../lib/api.ts';
 import { saveAs } from 'file-saver';
-import logomedianeira from '../public/medianeira.jpg';
-import logodelvind from '../public/delvind.jpg';
-import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
-import fs from 'fs';
+//import logomedianeira from '../public/medianeira.jpg';
+//import logodelvind from '../public/delvind.jpg';
+//import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+//import fs from 'fs';
 import { useNavigate } from 'react-router-dom';
 import { isTokenExpired } from '../utils/auth.ts';
 import Cookies from "js-cookie";
@@ -119,7 +119,6 @@ export function Customers() {
     status: 'active',
   });
 
-  // Estados para CNPJ
   const [loadingCnpj, setLoadingCnpj] = useState(false);
   const [cnpjError, setCnpjError] = useState('');
 
@@ -129,7 +128,6 @@ export function Customers() {
   const [itemservico, setItemServico] = useState<any[]>([]);
   const [datareplaceinvoice, setDataReplaceInvoice] = useState({});
 
-  // Funções para CNPJ
   const validateCnpj = (cnpj: string): boolean => {
     const cleanedCnpj = cnpj.replace(/\D/g, '');
 
@@ -160,56 +158,6 @@ export function Customers() {
     return formatted.slice(0, 18);
   };
 
-
-/*   const validateCpf = (cpf: string): boolean => {
-    const cleanedCpf = cpf.replace(/\D/g, '');
-
-    if (cleanedCpf.length !== 11) {
-      setCnpjError('CPF deve ter 11 dígitos');
-      return false;
-    }
-
-    let sum = 0;
-    let remainder;
-
-    for (let i = 1; i <= 9; i++) {
-      sum += parseInt(cleanedCpf.substring(i - 1, i)) * (11 - i);
-    }
-
-    remainder = (sum * 10) % 11;
-    if (remainder === 10 || remainder === 11) remainder = 0;
-    if (remainder !== parseInt(cleanedCpf.substring(9, 10))) {
-      setCnpjError('CPF inválido');
-      return false;
-    }
-
-    sum = 0;
-    for (let i = 1; i <= 10; i++) {
-      sum += parseInt(cleanedCpf.substring(i - 1, i)) * (12 - i);
-    }
-
-    remainder = (sum * 10) % 11;
-    if (remainder === 10 || remainder === 11) remainder = 0;
-    if (remainder !== parseInt(cleanedCpf.substring(10, 11))) {
-      setCnpjError('CPF inválido');
-      return false;
-    }
-
-    setCnpjError('');
-    return true;
-  };
-
-  const formatCpf = (value: string) => {
-    const cleaned = value.replace(/\D/g, '');
-
-    let formatted = cleaned;
-    if (cleaned.length > 3) formatted = `${cleaned.slice(0, 3)}.${cleaned.slice(3)}`;
-    if (cleaned.length > 6) formatted = `${formatted.slice(0, 7)}.${formatted.slice(7)}`;
-    if (cleaned.length > 9) formatted = `${formatted.slice(0, 11)}-${formatted.slice(11, 13)}`;
-
-    return formatted.slice(0, 14);
-  }; */
-
   const fetchCompanyData = async () => {
     const cleanedCnpj = newCustomer.cnpj.replace(/\D/g, '');
 
@@ -228,8 +176,6 @@ export function Customers() {
       if (data.status === 'ERROR' || data.error) {
         throw new Error(data.message || 'CNPJ não encontrado');
       }
-
-      //console.log(data);
 
       setNewCustomer({
         ...newCustomer,
@@ -267,62 +213,6 @@ export function Customers() {
       setLoadingCnpj(false);
     }
   };
-
-/*   const fetchPersonData = async () => {
-    const cleanedCpf = newCustomer.cpf.replace(/\D/g, '');
-
-    if (cleanedCpf.length !== 11) {
-      setCnpjError('CPF deve ter 11 dígitos');
-      return;
-    }
-
-    setLoadingCnpj(true);
-    setCnpjError('');
-
-    try {
-      const response = await fetch(`https://api.cpfdata.com/cpf/${cleanedCpf}`);
-
-      if (!response.ok) throw new Error('Erro na consulta');
-
-      const data = await response.json();
-
-      console.log(data);
-
-      if (data.status === 'ERROR' || data.error) {
-        throw new Error(data.message || 'CPF não encontrado');
-      }
-
-      setNewCustomer({
-        ...newCustomer,
-        name: data.nome || '',
-        cpf: data.cpf || '',
-        razaoSocial: data.nome || '',
-        email: data.email || '',
-        address: {
-          ...newCustomer.address,
-          street: data.endereco.logradouro || '',
-          city: data.endereco.cidade || '',
-          state: data.endereco.estado || '',
-        },
-      });
-    } catch (err) {
-      console.error('Erro na consulta:', err);
-      setCnpjError('Dados não encontrados. Preencha manualmente');
-      setNewCustomer({
-        ...newCustomer,
-        name: '',
-        email: '',
-        address: {
-          ...newCustomer.address,
-          street: '',
-          city: '',
-          state: '',
-        },
-      });
-    } finally {
-      setLoadingCnpj(false);
-    }
-  }; */
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -419,9 +309,9 @@ export function Customers() {
 
   const [openMenuId, setOpenMenuId] = useState(null);
 
-const toggleMenu = (id:any) => {
-  setOpenMenuId(prev => prev === id ? null : id);
-};
+  const toggleMenu = (id:any) => {
+    setOpenMenuId(prev => prev === id ? null : id);
+  };
 
   const handleViewInvoiceHistory = async (customer: Customer) => {
     try {
@@ -561,7 +451,6 @@ const toggleMenu = (id:any) => {
 
   const handleSaveSubscription = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!selectedCustomer) return;
 
     if (selectedCustomer!.user.senhaelotech === 'undefined') { toast.error('Chave de homologação/Produção inválida!'); return; };
@@ -631,6 +520,7 @@ const toggleMenu = (id:any) => {
 
   const handleGenerateInvoice = async (e: React.FormEvent) => {
     e.preventDefault();
+    FindDataCnpj();
     if (!selectedCustomer) return;
 
     if (selectedCustomer!.user.senhaelotech === 'undefined') { toast.error('Chave de homologação/Produção inválida!'); return; };
@@ -911,261 +801,6 @@ const toggleMenu = (id:any) => {
     }
   }
 
-/*   async function criarNotaFiscal(customer: any) {
-  
-        //console.log(customer);
-  
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(customer.xml, "text/xml");
-  
-        const getValue = (tagName: string) => {
-          const element = xmlDoc.getElementsByTagName(tagName)[0];
-          return element ? element.textContent || "" : "N/A";
-        };
-  
-        const pdfDoc = await PDFDocument.create();
-        const page = pdfDoc.addPage([595.28, 841.89]); // A4 em pontos
-  
-        const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-        const fontSize = 10;
-  
-        const drawText = (text: string, x: number, y: number, size = fontSize) => {
-          page.drawText(text, {
-            x,
-            y,
-            size,
-            font,
-            color: rgb(0, 0, 0),
-          });
-        };
-  
-        // Cabeçalho
-        drawText('MUNICIPIO DE MEDIANEIRA - Nota Fiscal de Serviços Eletrônica', 150, 800, 12);
-        drawText(`Número: ${getValue("ns2:Numero")}`, 50, 780);
-        drawText(`Data Prestação: ${getValue("ns2:DataEmissao")}`, 250, 780);
-        drawText(`Autenticidade: ${getValue("ns2:CodigoVerificacao")}`, 450, 780);
-        drawText('SITE AUTENTICIDADE: https://medianeira.oxy.elotech.com.br/iss/autenticar-documento-fiscal', 50, 765, 8);
-  
-        // Dados do prestador
-        drawText('DADOS DO PRESTADOR DO SERVIÇO', 50, 740, 11);
-        drawText(`Nome/Razão Social: ${getValue("ns2:RazaoSocial")}`, 50, 725);
-        drawText(`CNPJ: ${getValue("ns2:Cnpj")}`, 50, 710);
-        drawText(`Insc. Municipal: ${getValue("ns2:InscricaoMunicipal")}`, 50, 695);
-        drawText(`Endereço: ${getValue("ns2:Endereco")}, ${getValue("ns2:Numero")}`, 50, 680);
-        drawText(`Município/UF: ${getValue("ns2:CodigoMunicipio")}-${getValue("ns2:Uf")} | CEP: ${getValue("ns2:Cep")}`, 50, 665);
-        drawText(`Fone: ${getValue("ns2:Telefone")} | E-mail: ${getValue("ns2:Email")}`, 50, 650);
-  
-        // Dados do tomador
-        drawText('DADOS DO TOMADOR DO SERVIÇO', 50, 625, 11);
-        drawText(`Nome/Razão Social: ${customer.data.Rps.Tomador.RazaoSocial || 'N/A'}`, 50, 610);
-        drawText(`CPF/CNPJ: ${customer.data.Rps.Tomador.IdentificacaoTomador.CpfCnpj || 'N/A'}`, 50, 595);
-        drawText(`Endereço: ${customer.data.Rps.Tomador.Endereco.Endereco}, ${customer.data.Rps.Tomador.Endereco.Numero} - ${customer.data.Rps.Tomador.Endereco.Bairro}`, 50, 580);
-        drawText(`Município/UF: ${customer.data.Rps.Tomador.Endereco.CodigoMunicipio}-${customer.data.Rps.Tomador.Endereco.Uf} | CEP: ${customer.data.Rps.Tomador.Endereco.Cep}`, 50, 565);
-        drawText(`Fone: ${customer.data.Rps.Tomador.Contato.Telefone || 'N/A'} | E-mail: ${customer.data.Rps.Tomador.Contato.Email || 'N/A'}`, 50, 550);
-  
-        // Serviço
-        drawText('DEFINIÇÃO DO SERVIÇO', 50, 525, 11);
-        drawText(`Item da Lista de Serviços: ${getValue("ns2:ItemListaServico")} ${getValue("ns2:Descricao")}`, 50, 510);
-        drawText(`CNAE: ${getValue("ns2:CodigoCnae")} | Competência: ${getValue("ns2:Competencia")}`, 50, 495);
-        drawText(`Local da Prestação: ${getValue("ns2:CodigoMunicipio")}-${getValue("ns2:Uf")}`, 50, 480);
-        drawText('Natureza da Operação: EXIGÍVEL', 50, 465);
-  
-        // Discriminação
-        drawText('DISCRIMINAÇÃO DO SERVIÇO', 50, 440, 11);
-        drawText(`- ${getValue("ns2:Discriminacao")}`, 50, 425);
-        drawText(`Descrição: ${getValue("ns2:Descricao")} | Qtde: ${getValue("ns2:Quantidade")} | Valor Unitário: R$ ${getValue("ns2:ValorUnitario")} | Valor Total: R$ ${getValue("ns2:ValorServicos")}`, 50, 410);
-  
-        // Tributos
-        drawText('TRIBUTOS INCIDENTES', 50, 380, 11);
-        drawText(`ISSQN: R$ ${getValue("ns2:ValorIss")} | Alíquota: ${getValue("ns2:Aliquota")}% | Retido: ${getValue("ns2:IssRetido") === "2" ? "Não" : "Sim"}`, 50, 365);
-  
-        // Totais
-        drawText('TOTALIZAÇÃO DO DOCUMENTO FISCAL', 50, 320, 11);
-        drawText(`Base de Cálculo ISSQN: R$ ${getValue("ns2:BaseCalculo")}`, 50, 305);
-        drawText(`Valor Total: R$ ${getValue("ns2:ValorServicos")} | Descontos: R$ ${getValue("ns2:DescontoIncondicionado")} | Valor Líquido: R$ ${getValue("ns2:ValorLiquidoNfse")}`, 50, 290);
-  
-        // Assinatura
-        drawText(`Recebemos de ${getValue("ns2:RazaoSocial")} os serviços constantes nesta NFS-e.`, 50, 260);
-        drawText('DATA: ____/____/_____   Assinatura: ____________________________', 50, 240);
-  
-        // Salvar
-        const pdfBytes = await pdfDoc.save();
-        saveAs(new Blob([pdfBytes], { type: "application/pdf" }), "modelo-nota-fiscal.pdf");
-  } */
-
-/*   async function criarNotaFiscal(customer: any) {
-          const parser = new DOMParser();
-          const xmlDoc = parser.parseFromString(customer.xml, "text/xml");
-      
-          const getValue = (tagName: string) => {
-              const element = xmlDoc.getElementsByTagName(tagName)[0];
-              return element ? element.textContent || "" : "N/A";
-          };
-      
-          const pdfDoc = await PDFDocument.create();
-          const page = pdfDoc.addPage([595.28, 841.89]); 
-          const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-          const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-      
-          const fontSize = 10;
-          const titleColor = rgb(0.3, 0.3, 0.6); 
-      
-          const drawText = (
-              text: string,
-              x: number,
-              y: number,
-              size = fontSize,
-              bold = false
-          ) => {
-              page.drawText(text, {
-                  x,
-                  y,
-                  size,
-                  font: bold ? fontBold : font,
-                  color: rgb(0, 0, 0),
-              });
-          };
-      
-          const drawTitleBar = (text: string, x: number, y: number, width: number) => {
-              page.drawRectangle({
-                  x,
-                  y,
-                  width,
-                  height: 16,
-                  color: rgb(0.8, 0.8, 1), // lilás claro
-                  borderColor: rgb(0, 0, 0),
-                  borderWidth: 1,
-              });
-              drawText(text, x + 5, y + 4, 10, true);
-          };
-      
-          const drawLine = (x1: number, y1: number, x2: number, y2: number) => {
-              page.drawLine({
-                  start: { x: x1, y: y1 },
-                  end: { x: x2, y: y2 },
-                  thickness: 1,
-                  color: rgb(0, 0, 0),
-              });
-          };
-      
-
-          const response = await fetch(logomedianeira);
-          const logoBytes = await response.arrayBuffer();
-
-          const response2 = await fetch(logodelvind);
-          const logoBytes2 = await response2.arrayBuffer();
-
-          const logoPrefeitura = await pdfDoc.embedJpg(logoBytes);
-          const logoEmpresa = await pdfDoc.embedJpg(logoBytes2);
-          const prefeituraDims = logoPrefeitura.scale(0.3);
-          const empresaDims = logoEmpresa.scale(0.4); 
-      
-          let y = 800;
-      
-
-           page.drawImage(logoPrefeitura, {
-              x: 50,
-              y: y + -40,
-              width: prefeituraDims.width,
-              height: prefeituraDims.height,
-          }); 
-      
-          drawText("MUNICÍPIO DE MEDIANEIRA", 150, y, 12, true);
-          drawText("Nota Fiscal de Serviços Eletrônica", 150, y - 14, 10);
-          drawText(`Número: ${getValue("ns2:Numero")}`, 400, y, 10);
-          drawText(`Data de Emissão: ${getValue("ns2:DataEmissao")}`, 400, y - 14, 10);
-          drawText(`Código Verificação: ${getValue("ns2:CodigoVerificacao")}`, 400, y - 28, 10);
-          y -= 60;
-      
-          drawText(
-              "SITE AUTENTICIDADE: https://medianeira.oxy.elotech.com.br/iss/autenticar-documento-fiscal",
-              50,
-              y,
-              8
-          );
-          y -= 25;
-      
-          // DADOS DO PRESTADOR
-          drawTitleBar("DADOS DO PRESTADOR DO SERVIÇO", 50, y, 495);
-      
-          y -= 20;
-          drawText(`Nome/Razão Social: ${getValue("ns2:RazaoSocial")}`, 130, y);
-          drawText(`CNPJ: ${getValue("ns2:Cnpj")}`, 130, y - 14);
-          drawText(`Inscrição Municipal: ${getValue("ns2:InscricaoMunicipal")}`, 350, y - 14);
-          drawText(
-              `Endereço: ${getValue("ns2:Endereco")} ${getValue("ns2:Numero")}`,
-              130,
-              y - 28
-          );
-          y -= 42;
-          drawLine(50, y, 545, y);
-          y -= 10;
-      
-          // DADOS DO TOMADOR
-          drawTitleBar("DADOS DO TOMADOR DO SERVIÇO", 50, y, 495);
-          y -= 18;
-          drawText(
-              `Nome/Razão Social: ${customer.data.Rps.Tomador.RazaoSocial || "N/A"}`,
-              55,
-              y
-          );
-          drawText(
-              `CPF/CNPJ: ${customer.data.Rps.Tomador.IdentificacaoTomador.CpfCnpj || "N/A"}`,
-              55,
-              y - 14
-          );
-          drawText(
-              `Endereço: ${customer.data.Rps.Tomador.Endereco.Endereco}, ${customer.data.Rps.Tomador.Endereco.Numero}`,
-              270,
-              y - 14
-          );
-          y -= 28;
-          drawLine(50, y, 545, y);
-          y -= 10;
-      
-          // DEFINIÇÃO DO SERVIÇO
-          drawTitleBar("DEFINIÇÃO DO SERVIÇO", 50, y, 495);
-          y -= 18;
-          drawText(`Item da Lista de Serviços: ${getValue("ns2:ItemListaServico")}`, 55, y);
-          drawText(`CNAE: ${getValue("ns2:CodigoCnae")}`, 210, y);
-          drawText(`Local da Prestação: ${getValue("ns2:CodigoMunicipio")}-PR`, 370, y);
-          y -= 14;
-          drawLine(50, y, 545, y);
-          y -= 10;
-      
-          // DISCRIMINAÇÃO DO SERVIÇO
-          drawTitleBar("DISCRIMINAÇÃO DO SERVIÇO", 50, y, 495);
-          y -= 18;
-          drawText(`${getValue("ns2:Descricao")}`, 55, y);
-          y -= 14;
-          drawLine(50, y, 545, y);
-          y -= 10;
-      
-          // TRIBUTOS
-          drawTitleBar("TRIBUTOS INCIDENTES", 50, y, 495);
-          y -= 18;
-          drawText(`ISSQN: R$ ${getValue("ns2:ValorIss")} | Alíquota: ${getValue("ns2:Aliquota")}%`, 55, y);
-          y -= 14;
-          drawLine(50, y, 545, y);
-          y -= 10;
-      
-          // TOTALIZAÇÃO
-          drawTitleBar("TOTALIZAÇÃO DO DOCUMENTO FISCAL", 50, y, 495);
-          y -= 18;
-          drawText(`Base de Cálculo ISSQN: R$ ${getValue("ns2:BaseCalculo")}`, 55, y);
-          drawText(`Valor Total: R$ ${getValue("ns2:ValorServicos")}`, 300, y);
-          y -= 14;
-          drawLine(50, y, 545, y);
-          y -= 25;
-      
-          // Assinatura
-          drawText(`Recebemos de ${getValue("ns2:RazaoSocial")} os serviços constantes nesta NFS-e.`, 50, y);
-          drawText("DATA: ___/___/_____    Assinatura: ________________________________", 50, y - 20);
-      
-          const pdfBytes = await pdfDoc.save();
-          saveAs(new Blob([pdfBytes], { type: "application/pdf" }), "nota-fiscal-medianeira.pdf");
-  } */
-
   useEffect(() => {
     loadCustomers();
   }, []);
@@ -1246,9 +881,15 @@ const toggleMenu = (id:any) => {
     FetchTaxation();
   },[invoice.rbt12, invoice.anexo, invoice.valor_unitario])
 
-  //console.log(invoiceHistory);
-  //console.log(invoice.aliquota_item_lista);
-  //console.log(invoice.item_lista);
+/*     async function FindDataCnpj() {
+    const cleanedCnpj = selectedCustomer?.cnpj.replace(/\D/g, '');
+    const consultacnpj = await fetch(`https://publica.cnpj.ws/cnpj/${cleanedCnpj}`);
+    const data = await consultacnpj.json();
+    setInvoice(prevState => ({
+        ...prevState,
+      rbt12: data.capital_social,
+    }));      
+  } */
 
   if (loading) return <div>Carregando...</div>;
  
