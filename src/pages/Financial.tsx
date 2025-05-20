@@ -641,55 +641,55 @@ export function Financial() {
     {view === "dashboard" && (
       <div
         ref={reportRef}
-        className="bg-gradient-to-br from-blue-50 to-white rounded-2xl shadow-xl p-8 space-y-8 border border-blue-100"
+        className="bg-gradient-to-br from-blue-50 to-white rounded-2xl shadow-xl p-4 md:p-8 space-y-8 border border-blue-100"
       >
-        <h2 className="text-2xl font-extrabold text-blue-800 flex items-center gap-2">
+        <h2 className="text-xl md:text-2xl font-extrabold text-blue-800 flex flex-wrap items-center gap-2 break-words">
           <svg className="w-7 h-7 text-blue-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 10c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
           </svg>
-          Visão Geral Financeira
+          <span className="break-words">Visão Geral Financeira</span>
         </h2>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div className="bg-white p-5 rounded-xl shadow flex flex-col items-center border border-blue-100 hover:shadow-lg transition">
-        <span className="text-xs text-gray-500 mb-1">Total Pago</span>
-        <span className="text-2xl font-bold text-green-600">
-          R$ {chartData[0].total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="bg-white p-4 md:p-5 rounded-xl shadow flex flex-col items-center border border-blue-100 hover:shadow-lg transition min-w-0">
+        <span className="text-xs text-gray-500 mb-1 text-center break-words">Total Pago R$</span>
+        <span className="text-xl md:text-2xl font-bold text-green-600 break-words text-center">
+          {chartData[0].total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </span>
         <svg className="w-6 h-6 mt-2 text-green-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
         </svg>
           </div>
-          <div className="bg-white p-5 rounded-xl shadow flex flex-col items-center border border-blue-100 hover:shadow-lg transition">
-        <span className="text-xs text-gray-500 mb-1">Recorrente</span>
-        <span className="text-2xl font-bold text-blue-600">
-          R$ {chartData[1].total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <div className="bg-white p-4 md:p-5 rounded-xl shadow flex flex-col items-center border border-blue-100 hover:shadow-lg transition min-w-0">
+        <span className="text-xs text-gray-500 mb-1 text-center break-words">Recorrente R$</span>
+        <span className="text-xl md:text-2xl font-bold text-blue-600 break-words text-center">
+          {chartData[1].total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </span>
         <svg className="w-6 h-6 mt-2 text-blue-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="10" />
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2" />
         </svg>
           </div>
-          <div className="bg-white p-5 rounded-xl shadow flex flex-col items-center border border-blue-100 hover:shadow-lg transition">
-        <span className="text-xs text-gray-500 mb-1">Em atraso</span>
-        <span className="text-2xl font-bold text-red-600">
-          R$ {chartData[3].total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <div className="bg-white p-4 md:p-5 rounded-xl shadow flex flex-col items-center border border-blue-100 hover:shadow-lg transition min-w-0">
+        <span className="text-xs text-gray-500 mb-1 text-center break-words">Em atraso R$</span>
+        <span className="text-xl md:text-2xl font-bold text-red-600 break-words text-center">
+          {chartData[3].total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </span>
         <svg className="w-6 h-6 mt-2 text-red-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3" />
           <circle cx="12" cy="12" r="10" />
         </svg>
           </div>
-          <div className="bg-white p-5 rounded-xl shadow flex flex-col items-center border border-blue-100 hover:shadow-lg transition">
-        <span className="text-xs text-gray-500 mb-1">Clientes</span>
-        <span className="text-2xl font-bold text-blue-800">{customers.length}</span>
+          <div className="bg-white p-4 md:p-5 rounded-xl shadow flex flex-col items-center border border-blue-100 hover:shadow-lg transition min-w-0">
+        <span className="text-xs text-gray-500 mb-1 text-center break-words">Clientes</span>
+        <span className="text-xl md:text-2xl font-bold text-blue-800 break-words text-center">{customers.length}</span>
         <svg className="w-6 h-6 mt-2 text-blue-300" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m9-4a4 4 0 11-8 0 4 4 0 018 0z" />
         </svg>
           </div>
-          <div className="bg-white p-5 rounded-xl shadow flex flex-col items-center border border-blue-100 hover:shadow-lg transition">
-        <span className="text-xs text-gray-500 mb-1">Parcelamentos</span>
-        <span className="text-2xl font-bold text-yellow-600">
-          R$ {chartData[2].total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <div className="bg-white p-4 md:p-5 rounded-xl shadow flex flex-col items-center border border-blue-100 hover:shadow-lg transition min-w-0">
+        <span className="text-xs text-gray-500 mb-1 text-center break-words">Parcelamentos R$</span>
+        <span className="text-xl md:text-2xl font-bold text-yellow-600 break-words text-center">
+          {chartData[2].total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </span>
         <svg className="w-6 h-6 mt-2 text-yellow-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
           <rect x="4" y="4" width="16" height="16" rx="2" />
@@ -698,7 +698,7 @@ export function Financial() {
           </div>
         </div>
 
-        <div className="h-72 bg-white rounded-xl shadow border border-blue-100 flex items-center justify-center p-4">
+        <div className="h-64 md:h-72 bg-white rounded-xl shadow border border-blue-100 flex items-center justify-center p-2 md:p-4">
           <ResponsiveContainer width="100%" height="100%">
         <BarChart data={chartData} barCategoryGap={30}>
           <XAxis dataKey="name" tick={{ fontSize: 13, fill: "#2563eb" }} />
