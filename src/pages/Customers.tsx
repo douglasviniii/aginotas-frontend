@@ -1526,6 +1526,7 @@ const toggleMenu = (id:any) => {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
                   <input
                   type="tel"
+                  placeholder="00000000000"
                   value={newCustomer.phone}
                   onChange={(e) => {
                     const numericValue = e.target.value.replace(/\D/g, ''); // Remove non-numeric characters
@@ -1560,6 +1561,7 @@ const toggleMenu = (id:any) => {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Número</label>
                   <input
                     type="text"
+                    placeholder="0000"
                     value={newCustomer.address.number}
                     onChange={(e) =>
                       setNewCustomer({
@@ -1625,6 +1627,7 @@ const toggleMenu = (id:any) => {
                   <label className="block text-sm font-medium text-gray-700 mb-1">CEP</label>
                   <input
                   type="text"
+                  placeholder="0000000"
                   value={newCustomer.address.zipCode}
                   onChange={(e) => {
                     const numericValue = e.target.value.replace(/\D/g, ''); // Remove non-numeric characters
@@ -1644,6 +1647,7 @@ const toggleMenu = (id:any) => {
                   </label>
                   <input
                     type="text"
+                    placeholder="0000000"
                     value={newCustomer.address.cityCode}
                     onChange={(e) =>
                       setNewCustomer({
@@ -1697,6 +1701,7 @@ const toggleMenu = (id:any) => {
                     <label className="block text-sm font-medium text-gray-700 mb-1">Inscrição Municipal</label>
                     <input
                       type="text"
+                      placeholder="00000000"
                       value={newCustomer.inscricaoMunicipal || ''}
                       onChange={(e) => setNewCustomer({ ...newCustomer, inscricaoMunicipal: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -1719,6 +1724,7 @@ const toggleMenu = (id:any) => {
                     <input
                       type="tel"
                       value={newCustomer.phone}
+                      placeholder="00000000000"
                       onChange={(e) => {
                       const numericValue = e.target.value.replace(/\D/g, ''); // Remove non-numeric characters
                       setNewCustomer({ ...newCustomer, phone: numericValue });
@@ -1753,6 +1759,7 @@ const toggleMenu = (id:any) => {
                     <input
                       type="text"
                       value={newCustomer.address.number}
+                      placeholder="0000"
                       onChange={(e) =>
                         setNewCustomer({
                           ...newCustomer,
@@ -1818,6 +1825,7 @@ const toggleMenu = (id:any) => {
                     <input
                       type="text"
                       value={newCustomer.address.zipCode}
+                      placeholder="0000000"
                       onChange={(e) => {
                       const numericValue = e.target.value.replace(/\D/g, ''); // Remove non-numeric characters
                       setNewCustomer({
@@ -1836,6 +1844,7 @@ const toggleMenu = (id:any) => {
                     </label>
                     <input
                       type="text"
+                      placeholder="0000000"
                       value={newCustomer.address.cityCode}
                       onChange={(e) =>
                         setNewCustomer({
