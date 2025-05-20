@@ -47,7 +47,7 @@ export function Financial() {
   const [receivables, setReceivables] = useState<Receivable[]>([]);
   const [agrupado, setAgrupado] = useState({});
   const [loading, setLoading] = useState(false);
-  const reportRef = useRef();
+  const reportRef = useRef<HTMLDivElement | null>(null);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
@@ -194,12 +194,8 @@ export function Financial() {
 
   const chartData = [
     {
-      name: "A Receber",
-      total: filteredReceivables2.filter((r) => r.typeofcharge === "Receber Agora").reduce((sum, r) => sum + r.value, 0),
-    },
-    {
       name: "Pago",
-      total: filteredReceivables2.filter((r) => r.typeofcharge === "Pago").reduce((sum, r) => sum + r.value, 0),
+      total: filteredReceivables2.filter((r) => r.status === "Pago").reduce((sum, r) => sum + r.value, 0),
     },
     {
       name: "Recorrente",
@@ -217,11 +213,13 @@ export function Financial() {
           const today = new Date();
           dueDate.setHours(0, 0, 0, 0);
           today.setHours(0, 0, 0, 0);
-          return dueDate < today && r.status !== "Pago";
+          return new Date(dueDate) < new Date(today) && r.status !== "Pago";
         })
         .reduce((sum, r) => sum + Number(r.value), 0),
     }
   ];
+
+  //console.log(chartData);
 
   const handleMarkAsPaid = async (id: string) => {
     try {
@@ -684,18 +682,18 @@ export function Financial() {
           <div className="bg-gray-100 p-4 rounded shadow">
             <p className="text-sm text-gray-600">Total Pago</p>
             <p className="text-lg font-bold">R$ 
-            {chartData[1].total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {chartData[0].total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
           </div>
           <div className="bg-gray-100 p-4 rounded shadow">
             <p className="text-sm text-gray-600">Recorrente</p>
             <p className="text-lg font-bold">R$ 
-              {chartData[2].total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+              {chartData[1].total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           </div>
           <div className="bg-gray-100 p-4 rounded shadow">
             <p className="text-sm text-gray-600">Em atraso</p>
             <p className="text-lg font-bold">R$ 
-              {chartData[4].total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+              {chartData[3].total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           </div>
           <div className="bg-gray-100 p-4 rounded shadow">
             <p className="text-sm text-gray-600">Clientes</p>
@@ -704,7 +702,7 @@ export function Financial() {
           <div className="bg-gray-100 p-4 rounded shadow">
             <p className="text-sm text-gray-600">Parcelamentos</p>
             <p className="text-lg font-bold">R$ 
-              {chartData[3].total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+              {chartData[2].total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           </div>
         </div>
 
