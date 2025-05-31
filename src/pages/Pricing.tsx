@@ -49,7 +49,7 @@ useEffect(() => {
 
 //console.log('Items:', plans.items[0].pricing_scheme.price);
 //console.log('Plans:', plans.plan.trial_period_days);
-console.log(plans);
+//console.log(plans);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">

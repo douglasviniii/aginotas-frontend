@@ -1,8 +1,8 @@
-import { saveAs } from 'file-saver';
-import logomedianeira from '../public/medianeira.jpg';
-import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
-import { writeFile } from "fs/promises";
-import puppeteer from "puppeteer";
+//import { saveAs } from 'file-saver';
+//import logomedianeira from '../public/medianeira.jpg';
+//import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+//import { writeFile } from "fs/promises";
+//import puppeteer from "puppeteer";
 const API_URL = import.meta.env.VITE_API_URL;
 import Cookies from "js-cookie";
 
@@ -243,7 +243,7 @@ export const api = {
     });
 
     if (!response.ok) {
-      throw new Error('Falha ao assinatura');
+      throw new Error('Assinatura inexistente');
     }
 
     return response.json();

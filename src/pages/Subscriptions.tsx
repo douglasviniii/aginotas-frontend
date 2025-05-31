@@ -69,7 +69,6 @@ export function Subscriptions() {
     return <div>Nenhuma assinatura encontrada</div>;
   }
 
-
   return (
     <div className="max-w-2xl mx-auto space-y-10 py-10">
       <h1 className="text-3xl font-extrabold text-gray-900 text-center mb-8 tracking-tight">

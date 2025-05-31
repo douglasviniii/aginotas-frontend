@@ -344,6 +344,7 @@ export function Dashboard() {
             <div className="text-gray-700 font-medium">
           {item.customer.name || item.customer.razaoSocial || ''}
             </div>
+            {item.status === 'emitida' ? (
             <div className="flex gap-4 mt-2">
           <button
             onClick={() => downloadCustomerXml(item)}
@@ -358,6 +359,7 @@ export function Dashboard() {
             Baixar PDF
           </button>
             </div>
+            ):(<></>)}
           </div>
         ))}
           </div>
@@ -402,6 +404,7 @@ export function Dashboard() {
               {dayjs(item.date).tz('America/Sao_Paulo').format('DD/MM/YYYY HH:mm')}
             </td>
             <td className="py-3 px-4">
+              {item.status === 'emitida' ? (
               <div className="flex gap-2">
             <button
               onClick={() => downloadCustomerXml(item)}
@@ -416,6 +419,7 @@ export function Dashboard() {
               Baixar PDF
             </button>
               </div>
+              ):(<></>)}
             </td>
           </tr>
             ))}

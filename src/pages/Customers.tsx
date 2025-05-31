@@ -47,7 +47,7 @@ interface Schedule {
 export function Customers() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [schedulings, setSchedulings] = useState<Schedule[]>([]);
-
+  const [isValid, setIsValid] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
@@ -729,14 +729,6 @@ export function Customers() {
     (customer.razaoSocial ?? '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-gray-600">Carregando...</div>
-      </div>
-    );
-  }
-
   const closeAllModals = () => {
     setActiveModal('none');  // Fechando todos os modais
     setSchedulings([]);
@@ -749,6 +741,31 @@ export function Customers() {
       setCustomers(data || []);
       const cnaes = await api.Find_CNAES_ELOTECH();
       setCnaes(cnaes || []);
+      
+      const userData = localStorage.getItem('user');
+      let userInfo = null;
+      if (userData) {
+        try {
+        userInfo = JSON.parse(userData);
+        const subscription = await api.find_subscription(userInfo.subscription_id);
+    
+        if (subscription.status !== "active" && subscription.status !== "future") {
+          setIsValid(true);
+        }
+        if (subscription.current_cycle.status !== "billed") {
+          setIsValid(true);
+        }
+        } catch (e) {
+          userInfo = JSON.parse(userData);
+          if(userInfo.email === "contato@delvind.com" || userInfo.email === "escritorio@delfoscontabilidade.com"){
+            setIsValid(false);
+          }else{
+            setIsValid(true);
+          }
+
+        }
+      }      
+      
       setLoading(false);
       
       const navigate = useNavigate();
@@ -881,18 +898,19 @@ export function Customers() {
     FetchTaxation();
   },[invoice.rbt12, invoice.anexo, invoice.valor_unitario])
 
-/*     async function FindDataCnpj() {
-    const cleanedCnpj = selectedCustomer?.cnpj.replace(/\D/g, '');
-    const consultacnpj = await fetch(`https://publica.cnpj.ws/cnpj/${cleanedCnpj}`);
-    const data = await consultacnpj.json();
-    setInvoice(prevState => ({
-        ...prevState,
-      rbt12: data.capital_social,
-    }));      
-  } */
 
-  if (loading) return <div>Carregando...</div>;
- 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-600">Carregando...</div>
+      </div>
+    );
+  }
+
+  if (isValid) return <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-4 rounded mb-4 text-center font-semibold">
+    Atenção: sua assinatura está em atraso. Regularize para continuar utilizando todos os recursos.
+  </div>; 
+  
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -2004,6 +2022,8 @@ export function Customers() {
                 </td>
                 <td className="py-3 px-2 text-gray-700">
                   <div className="flex flex-wrap gap-2">
+                    {invoice.status === 'emitida' ? (
+                      <>
                     <button
                       onClick={() => downloadCustomerXml(invoice)}
                       className="text-blue-600 hover:text-blue-800"
@@ -2018,6 +2038,8 @@ export function Customers() {
                     >
                       <File className="w-4 h-4" />
                     </button>
+                      </>
+                    ):(<></>)}
 {/*                     <button
                       onClick={() => handleModalReplaceInvoice(invoice)}
                       className="text-blue-600 hover:text-blue-800"
@@ -2094,6 +2116,8 @@ export function Customers() {
                 {/* Ações em mobile */}
                 <div className="flex justify-between mt-2 pt-2 border-t">
                   <div className="flex space-x-3">
+                    {invoice.status === 'emitida' ? (
+                      <>
                     <button
                       onClick={() => downloadCustomerXml(invoice)}
                       className="text-blue-600 hover:text-blue-800"
@@ -2108,6 +2132,8 @@ export function Customers() {
                     >
                       <File className="w-4 h-4" />
                     </button>
+                    </>
+                    ):(<></>)}
                     <button
                       onClick={() => {
                         navigator.clipboard.writeText(`https://www.aginotas.com.br/detalhesNfse/${invoice._id}`);

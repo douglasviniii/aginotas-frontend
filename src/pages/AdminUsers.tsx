@@ -708,64 +708,178 @@ export function AdminUsers() {
     <h1 className="text-2xl md:text-3xl font-bold mb-4 md:mb-8 text-gray-800">Gerenciamento de Usuários</h1>
 
     <div className="overflow-x-auto">
-      <table className="min-w-full bg-white rounded-lg shadow-md">
+      {/* Tabela para telas médias/grandes */}
+      <table className="min-w-full bg-white rounded-xl shadow-lg border border-gray-200 hidden sm:table">
         <thead>
-          <tr className="bg-gray-100">
-            <th className="p-2 md:p-4 text-left">Nome</th>
-            <th className="p-2 md:p-4 text-left hidden sm:table-cell">Email</th>
-            <th className="p-2 md:p-4 text-left">Status</th>
-            <th className="p-2 md:p-4 text-left">Ações</th>
-            <th className="p-2 md:p-4 text-left"></th>
+          <tr className="bg-gradient-to-r from-blue-50 to-blue-100">
+        <th className="p-3 md:p-4 text-left font-semibold text-gray-700">Nome</th>
+        <th className="p-3 md:p-4 text-left font-semibold text-gray-700">Email</th>
+        <th className="p-3 md:p-4 text-left font-semibold text-gray-700">Status</th>
+        <th className="p-3 md:p-4 text-left font-semibold text-gray-700">Ações</th>
           </tr>
         </thead>
         <tbody>
-          {usersDB.map((user) => (
-            <tr key={user._id} className="border-b border-gray-200">
-              <td className="p-2 md:p-4">{user.name}</td>
-              <td className="p-2 md:p-4 hidden sm:table-cell">{user.email}</td>      
-              <td className="p-2 md:p-4">
-                {user.status === 'active' ? (
-                    <button onClick={()=> handleUpdateUser(user)} className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">
-                    Desativar
-                  </button>
-                ) : (
-                  <button onClick={()=> handleUpdateUser(user)} className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600">
-                  Ativar
-                </button>
-                )}
-              </td>
-                <td className="p-2 md:p-4">
-                <IconButton
-                  aria-label="more"
-                  aria-controls={`user-menu-${user._id}`}
-                  aria-haspopup="true"
-                  onClick={(event) => handleMenuOpen(event, user._id)}
-                >
-                  <MoreVertIcon />               
-                </IconButton>
-                <Menu
-                  id={`user-menu-${user._id}`}
-                  anchorEl={anchorEl}
-                  keepMounted
-                  open={Boolean(anchorEl) && selectedUserId === user._id}
-                  onClose={handleMenuClose}
-                >
-                  <MenuItem
-                  onClick={() => {
-                    handleOpenModal(user);
-                    handleMenuClose();
-                  }}
-                  >
-                  <VisibilityIcon sx={{ mr: 1 }} />
-                  Ver Detalhes
-                  </MenuItem>               
-                </Menu>
-                </td>
-
-            </tr>
-          ))}
+          {usersDB.length === 0 ? (
+        <tr>
+          <td colSpan={4} className="p-6 text-center text-gray-400">Nenhum usuário encontrado.</td>
+        </tr>
+          ) : (
+        usersDB.map((user) => (
+          <tr
+            key={user._id}
+            className="border-b border-gray-100 hover:bg-blue-50 transition-colors"
+          >
+            <td className="p-3 md:p-4 flex items-center gap-3">
+          <div className="flex-shrink-0 w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold uppercase shadow-sm">
+            {user.name?.[0] || "?"}
+          </div>
+          <span className="font-medium text-gray-800">{user.name}</span>
+            </td>
+            <td className="p-3 md:p-4 text-gray-700">{user.email}</td>
+            <td className="p-3 md:p-4">
+          <span
+            className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+              user.status === "active"
+            ? "bg-green-100 text-green-700"
+            : "bg-red-100 text-red-700"
+            }`}
+          >
+            {user.status === "active" ? "Ativo" : "Inativo"}
+          </span>
+            </td>
+            <td className="p-3 md:p-4">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => handleUpdateUser(user)}
+              className={`px-3 py-1 rounded-lg text-xs font-semibold shadow transition-colors ${
+            user.status === "active"
+              ? "bg-red-500 hover:bg-red-600 text-white"
+              : "bg-green-500 hover:bg-green-600 text-white"
+              }`}
+            >
+              {user.status === "active" ? "Desativar" : "Ativar"}
+            </button>
+            <IconButton
+              aria-label="more"
+              aria-controls={`user-menu-${user._id}`}
+              aria-haspopup="true"
+              onClick={(event) => handleMenuOpen(event, user._id)}
+              size="small"
+              sx={{
+            backgroundColor: "#f3f4f6",
+            "&:hover": { backgroundColor: "#e0e7ef" },
+              }}
+            >
+              <MoreVertIcon fontSize="small" />
+            </IconButton>
+            <Menu
+              id={`user-menu-${user._id}`}
+              anchorEl={anchorEl}
+              keepMounted
+              open={Boolean(anchorEl) && selectedUserId === user._id}
+              onClose={handleMenuClose}
+              PaperProps={{
+            sx: { borderRadius: 2, minWidth: 180 },
+              }}
+            >
+              <MenuItem
+            onClick={() => {
+              handleOpenModal(user);
+              handleMenuClose();
+            }}
+              >
+            <VisibilityIcon sx={{ mr: 1 }} fontSize="small" />
+            Ver Detalhes
+              </MenuItem>
+            </Menu>
+          </div>
+            </td>
+          </tr>
+        ))
+          )}
         </tbody>
       </table>
+
+      {/* Lista para mobile */}
+      <div className="sm:hidden">
+        {usersDB.length === 0 ? (
+          <div className="p-6 text-center text-gray-400">Nenhum usuário encontrado.</div>
+        ) : (
+          <ul className="space-y-3">
+            {usersDB.map((user) => (
+              <li
+                key={user._id}
+                className="bg-white rounded-xl shadow border border-gray-200 p-4 flex items-center justify-between"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex-shrink-0 w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold uppercase shadow-sm">
+                    {user.name?.[0] || "?"}
+                  </div>
+                  <div>
+                    <div className="font-medium text-gray-800">{user.name}</div>
+                    <div>
+                      <span
+                        className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${
+                          user.status === "active"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                        }`}
+                      >
+                        {user.status === "active" ? "Ativo" : "Inativo"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col items-end gap-2">
+                  <button
+                    onClick={() => handleUpdateUser(user)}
+                    className={`px-3 py-1 rounded-lg text-xs font-semibold shadow transition-colors ${
+                      user.status === "active"
+                        ? "bg-red-500 hover:bg-red-600 text-white"
+                        : "bg-green-500 hover:bg-green-600 text-white"
+                    }`}
+                  >
+                    {user.status === "active" ? "Desativar" : "Ativar"}
+                  </button>
+                  <IconButton
+                    aria-label="more"
+                    aria-controls={`user-menu-${user._id}`}
+                    aria-haspopup="true"
+                    onClick={(event) => handleMenuOpen(event, user._id)}
+                    size="small"
+                    sx={{
+                      backgroundColor: "#f3f4f6",
+                      "&:hover": { backgroundColor: "#e0e7ef" },
+                    }}
+                  >
+                    <MoreVertIcon fontSize="small" />
+                  </IconButton>
+                  <Menu
+                    id={`user-menu-${user._id}`}
+                    anchorEl={anchorEl}
+                    keepMounted
+                    open={Boolean(anchorEl) && selectedUserId === user._id}
+                    onClose={handleMenuClose}
+                    PaperProps={{
+                      sx: { borderRadius: 2, minWidth: 180 },
+                    }}
+                  >
+                    <MenuItem
+                      onClick={() => {
+                        handleOpenModal(user);
+                        handleMenuClose();
+                      }}
+                    >
+                      <VisibilityIcon sx={{ mr: 1 }} fontSize="small" />
+                      Ver Detalhes
+                    </MenuItem>
+                  </Menu>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
 
       {/* Modal Gerar Nota Fiscal */}

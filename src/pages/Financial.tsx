@@ -47,6 +47,7 @@ export function Financial() {
   const [receivables, setReceivables] = useState<Receivable[]>([]);
   const [agrupado, setAgrupado] = useState({});
   const [loading, setLoading] = useState(false);
+  const [isValid, setIsValid] = useState(false);
   const reportRef = useRef<HTMLDivElement | null>(null);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -373,6 +374,29 @@ export function Financial() {
     setLoading(true);
     const clientes = await api.find_customers_user();
     const Receipts = await api.Find_Receipts();
+
+    const userData = localStorage.getItem('user');
+    let userInfo = null;
+    if (userData) {
+      try {
+      userInfo = JSON.parse(userData);
+      const subscription = await api.find_subscription(userInfo.subscription_id);
+      if (subscription.status !== "active" && subscription.status !== "future") {
+        setIsValid(true);
+      }
+      if (subscription.current_cycle.status !== "billed") {
+        setIsValid(true);
+      }
+      } catch (e) {
+        userInfo = JSON.parse(userData);
+        if(userInfo.email === "contato@delvind.com" || userInfo.email === "escritorio@delfoscontabilidade.com"){
+          setIsValid(false);
+        }else{
+          setIsValid(true);
+        }
+      }
+    }
+
     setReceivables(Receipts);
     setAgrupado(agruparPorStatus(Receipts));
     setCustomers(clientes);   
@@ -490,6 +514,10 @@ export function Financial() {
   }
 
   if (loading) return <div>Carregando...</div>;
+  if (isValid) return <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-4 rounded mb-4 text-center font-semibold">
+    Atenção: sua assinatura está em atraso. Regularize para continuar utilizando todos os recursos.
+  </div>;
+
 
   return (
     <div className="max-w-6xl mx-auto p-6">
