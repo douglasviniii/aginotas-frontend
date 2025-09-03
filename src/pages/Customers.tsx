@@ -520,7 +520,7 @@ export function Customers() {
 
   const handleGenerateInvoice = async (e: React.FormEvent) => {
     e.preventDefault();
-    FindDataCnpj();
+    //FindDataCnpj();
     if (!selectedCustomer) return;
 
     if (selectedCustomer!.user.senhaelotech === 'undefined') { toast.error('Chave de homologação/Produção inválida!'); return; };
