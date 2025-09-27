@@ -166,8 +166,6 @@ export function Register() {
 
       if (!user.id) throw new Error("Erro ao criar usuário");
 
-      localStorage.removeItem("selectedPlanId");
-
       const priceId = localStorage.getItem("selectedPlanId");
 
       const response = await api.create_checkout({
@@ -177,6 +175,7 @@ export function Register() {
       });
       if (!response.url) throw new Error("Erro ao gerar checkout.");
       window.location.href = response.url;
+      localStorage.removeItem("selectedPlanId");
     } catch (err: any) {
       setError(err.message || "Erro ao criar usuário.");
       toast.error(err.message || "Erro ao criar usuário.");

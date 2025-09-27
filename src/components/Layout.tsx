@@ -133,6 +133,14 @@ export function Layout() {
       { icon: CreditCard, label: "Assinaturas", path: "/subscriptions" },
       { icon: Settings, label: "Configurações", path: "/UserConfig" },
     ],
+    "Admin": [
+      { icon: User2, label: `Olá, ${userData.name}. Seja bem vindo!` },
+      { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
+      { icon: NotepadText, label: "Financeiro", path: "/financial" },
+      { icon: Users, label: "Clientes", path: "/customers" },
+      { icon: MessageSquare, label: "Chat com Suporte", path: "/chat" },
+      { icon: Settings, label: "Configurações", path: "/UserConfig" },
+    ],
   };
 
   const allowedStatuses = ["active", "past_due", "trialing"];
@@ -144,9 +152,15 @@ export function Layout() {
 
   let navItems;
 
-  if (!hasAnySubscription) {
+  if (!hasAnySubscription && userData.role !== "admin") {
     // Usuário SEM NENHUMA assinatura - mostra apenas Dashboard
     navItems = [
+      { icon: User2, label: `Olá, ${userData.name}. Seja bem vindo!` },
+      { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
+    ];
+  } else if (!hasAnySubscription && userData.role === "admin") {
+    // Acesso para Administrador
+    navItems = planNavItems["Admin"] || [
       { icon: User2, label: `Olá, ${userData.name}. Seja bem vindo!` },
       { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
     ];
