@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { api } from "../lib/api";
 import { StripeInvoice, StripeSubscription } from "./types";
+import { LogoLoading } from "../components/Loading";
 
 export function Subscriptions() {
   const [subscription, setSubscription] = useState<StripeSubscription | null>(
@@ -105,12 +106,7 @@ export function Subscriptions() {
     return new Date(timestamp * 1000).toLocaleDateString("pt-BR");
   };
 
-  if (loading)
-    return (
-      <div className="flex justify-center items-center min-h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
+if (loading) return <LogoLoading size={100} text="Carregando..." />;
 
   if (error)
     return (
