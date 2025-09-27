@@ -10,6 +10,7 @@ import timezone from "dayjs/plugin/timezone";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { api } from "../lib/api";
 import { isTokenExpired } from "../utils/auth";
+import { LogoLoading } from "../components/Loading";
 
 dayjs.extend(customParseFormat);
 dayjs.extend(timezone);
@@ -166,7 +167,7 @@ export function Dashboard() {
     filterInvoicesByMonth();
   }, [invoices, selectedMonth, selectedYear]);
 
-  if (loading) return <div>Carregando...</div>;
+  if (loading) return <LogoLoading size={100} text="Carregando..." />;
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">

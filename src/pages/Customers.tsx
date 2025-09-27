@@ -5,6 +5,7 @@ import ModalCustomer from "./ModalCustomer";
 import { ModalCreateCustomer } from "./ModalCreateCustomer";
 import { api } from "../lib/api";
 import { toast } from "sonner";
+import { LogoLoading } from "../components/Loading";
 
 export function Customers() {
   const [customers, setCustomers] = useState<CustomerType[]>([]);
@@ -27,9 +28,11 @@ export function Customers() {
     },
   });
   const [messageError, setMessageError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const fetchData = async () => {
     try {
+      setLoading(true);
       const customers = await api.getAllCustomers();
       customers.sort((a, b) => {
         const nameA = (a.name || a.corporateName || "").toLowerCase();
@@ -37,6 +40,7 @@ export function Customers() {
         return nameA.localeCompare(nameB);
       });
       setCustomers(customers);
+      setLoading(false);
     } catch (error) {
       toast.error("Ocorreu um erro ao buscar dados");
     }
@@ -75,6 +79,7 @@ export function Customers() {
 
   const handleCreateCustomer = async (newCustomer: CustomerType) => {
     try {
+      setLoading(true);
       if (
         !newCustomer.corporateName ||
         !newCustomer.email ||
@@ -86,7 +91,7 @@ export function Customers() {
         !newCustomer.address.city ||
         !newCustomer.address.state ||
         !newCustomer.address.zipCode ||
-        !newCustomer.address.municipalCode||
+        !newCustomer.address.municipalCode ||
         !newCustomer.contact.areaCode ||
         !newCustomer.contact.numberPhone
       ) {
@@ -95,6 +100,7 @@ export function Customers() {
       }
       await api.createCustomer(newCustomer);
       fetchData();
+      setLoading(false);
     } catch (error) {
       toast.error("Ocorreu um erro ao criar cliente");
     }
@@ -103,8 +109,10 @@ export function Customers() {
   const handleUpdateCustomer = async (customer: CustomerType) => {
     handleCloseModal();
     try {
+      setLoading(true);
       await api.updateCustomer(customer, customer.id);
       fetchData();
+      setLoading(false);
     } catch (error) {
       toast.error("Ocorreu um erro ao atualizar cliente");
     }
@@ -116,9 +124,11 @@ export function Customers() {
         "Tem certeza que deseja excluir este cliente?"
       );
       if (confirmDelete) {
+        setLoading(true);
         handleCloseModal();
         await api.deleteCustomer(id);
         fetchData();
+        setLoading(false);
       }
     } catch (error) {
       toast.error("Ocorreu um erro ao atualizar cliente");
@@ -127,9 +137,10 @@ export function Customers() {
 
   const handleGenerateInvoice = async (data: any) => {
     try {
+      setLoading(true);
       setMessageError("");
       const response = await api.generateInvoice(data);
-      response.error;
+      setLoading(false);
       setMessageError(response.error);
       toast.error(response.error);
     } catch (error: any) {
@@ -137,6 +148,7 @@ export function Customers() {
         error.response?.data?.message ||
         error.message ||
         "Erro ao gerar nota fiscal";
+      setLoading(false);
       setMessageError(errorMessage);
       toast.error(errorMessage);
     }
@@ -144,7 +156,9 @@ export function Customers() {
 
   const handleScheduleInvoice = async (data: any) => {
     try {
+      setLoading(true);
       await api.scheduleInvoice(data);
+      setLoading(false);
       toast.success("Agendamento de emissão criado com sucesso!");
     } catch (error) {
       toast.error("Ocorreu um erro ao agendar emissão da nota fiscal");
@@ -154,12 +168,17 @@ export function Customers() {
   async function handleGetSubscription(id: string) {
     if (!id) return;
     try {
+      setLoading(true);
       const data = await api.getSubscriptionById(id);
       setSubscriptionData(data);
+      setLoading(false);
     } catch (error) {
       console.error("Erro ao buscar assinatura:", error);
     }
   }
+
+  if (loading) return <LogoLoading size={100} text="Carregando..." />;
+
   return (
     <div className="space-y-6">
       {/* Título + botão criar */}

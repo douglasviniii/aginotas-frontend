@@ -218,3 +218,12 @@ export interface InvoiceListResponse {
   data: StripeInvoice[];
   has_more: boolean;
 }
+
+export interface Message {
+  senderId: string;
+  senderName: string;
+  senderRole: "user" | "support";
+  type: "text" | "image";
+  content: string;
+  timestamp?: number;
+}

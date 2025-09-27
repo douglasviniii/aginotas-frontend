@@ -280,6 +280,17 @@ export const api = {
     return response.json();
   },
 
+  async getAllChats() {
+    const response = await fetch(`${API_URL}/chat`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${Cookies.get("token")}`,
+      },
+    });
+    return response.json();
+  },
+
   async sendMessage(data: any) {
     const isFormData = data instanceof FormData;
 

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { api } from "../lib/api";
-import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { User } from "./types";
+import { LogoLoading } from "../components/Loading";
 
 export function UserConfig() {
   const [user, setUser] = useState<User>();
   const [file, setFile] = useState<File>();
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     loadUser();
@@ -15,11 +15,13 @@ export function UserConfig() {
 
   const loadUser = async () => {
     try {
+      setLoading(true);
       const stored = localStorage.getItem("user");
       if (!stored) throw new Error("Usuário não encontrado");
       const parsed = JSON.parse(stored);
       const responseUser = await api.getUserById();
       setUser(responseUser);
+      setLoading(false);
     } catch (err) {
       toast.error("Erro ao carregar usuário.");
     }
@@ -47,17 +49,16 @@ export function UserConfig() {
       e.target.value = "";
       return;
     }
-
-    // Apenas loga o arquivo
-    //console.log("Arquivo selecionado:", file);
     setFile(file);
   };
 
   const handleSave = async (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
+      setLoading(true);
       await api.updateUser(user, file);
       toast.success("Configurações salvas com sucesso!");
       loadUser();
+      setLoading(false);
     } catch (err) {
       toast.error("Erro ao salvar configurações.");
     }
@@ -78,6 +79,8 @@ export function UserConfig() {
       maximumFractionDigits: 2,
     });
   }
+
+  if (loading) return <LogoLoading size={100} text="Carregando..." />;
 
   if (!user) return null;
 
