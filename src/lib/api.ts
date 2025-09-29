@@ -140,6 +140,17 @@ export const api = {
     return response.json();
   },
 
+  async getCustomerById(customerId: string) {
+    const response = await fetch(`${API_URL}/user/customer/${customerId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${Cookies.get("token")}`,
+      },
+    });
+    return response.json();
+  },
+
   async updateCustomer(data: any, id: string) {
     const response = await fetch(`${API_URL}/user/customer/${id}`, {
       method: "PATCH",
@@ -361,6 +372,92 @@ export const api = {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ password }),
+    });
+    return response.json();
+  },
+
+  async createReceivable(data: any) {
+    const response = await fetch(`${API_URL}/financial/receivable`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${Cookies.get("token")}`,
+      },
+      body: JSON.stringify(data),
+    });
+    return response.json();
+  },
+
+  async createSchedulingReceivable(data: any) {
+    const response = await fetch(`${API_URL}/financial/scheduling/receivable`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${Cookies.get("token")}`,
+      },
+      body: JSON.stringify(data),
+    });
+    return response.json();
+  },
+
+  async getAllReceivables() {
+    const response = await fetch(`${API_URL}/financial/receivables`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${Cookies.get("token")}`,
+      },
+    });
+    return response.json();
+  },
+
+  async getAllSchedulingReceivables() {
+    const response = await fetch(
+      `${API_URL}/financial/scheduling/receivables`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Cookies.get("token")}`,
+        },
+      }
+    );
+    return response.json();
+  },
+
+  async deleteReceivable(id: string) {
+    const response = await fetch(`${API_URL}/financial/receivable/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${Cookies.get("token")}`,
+      },
+    });
+    return response.json();
+  },
+
+  async deleteSchedulingReceivable(id: string) {
+    const response = await fetch(
+      `${API_URL}/financial/scheduling/receivable/${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Cookies.get("token")}`,
+        },
+      }
+    );
+    return response.json();
+  },
+
+  async updateStatusReceivable(id: string, data: any) {
+    const response = await fetch(`${API_URL}/financial/receivable/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${Cookies.get("token")}`,
+      },
+      body: JSON.stringify(data),
     });
     return response.json();
   },

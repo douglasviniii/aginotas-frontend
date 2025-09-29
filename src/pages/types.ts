@@ -45,7 +45,6 @@ export type CustomerType = {
   };
 };
 
-
 export type User = {
   id: string;
   name: string;
@@ -226,4 +225,54 @@ export interface Message {
   type: "text" | "image";
   content: string;
   timestamp?: number;
+}
+
+export interface Customer {
+  id: string;
+  corporateName: string;
+  email: string;
+  document: {
+    type: string;
+    number: string;
+  };
+  municipalRegistration: string;
+  stateRegistration: string;
+  address: {
+    street: string;
+    neighborhood: string;
+    number: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    municipalCode: string;
+  };
+  contact: {
+    areaCode: string;
+    numberPhone: string;
+  };
+}
+
+export interface Recebivel {
+  id?: string;
+  serviceRecipient: string;
+  value: number;
+  type: string;
+  status: string;
+  description: string;
+  observations?: string;
+  attachment?: string;
+  dueDate?: string;
+}
+
+export interface Agendamento {
+  id?: string;
+  serviceRecipient: string;
+  value: number;
+  type: string;
+  status: string;
+  description: string;
+  observations?: string;
+  attachment?: string;
+  dueDate?: string;
+  billingDay: number;
 }

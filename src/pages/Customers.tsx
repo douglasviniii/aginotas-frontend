@@ -103,6 +103,7 @@ export function Customers() {
       setLoading(false);
     } catch (error) {
       toast.error("Ocorreu um erro ao criar cliente");
+      setLoading(false);
     }
   };
 

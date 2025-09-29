@@ -20,7 +20,6 @@ import { AdminChat } from './pages/AdminReports';
 import { UserChat } from './pages/UserChat';
 import { SubscriptionManagement } from './pages/SubscriptionManagement';
 import { DetalhesNfse } from './pages/DetalhesNfse';
-import { Financial } from './pages/Financial';
 import { AdminConfig } from './pages/AdminConfig';
 import { isTokenExpired } from './utils/auth';
 import { useEffect } from 'react';
@@ -29,6 +28,7 @@ import PoliticasPrivacidade from './pages/Politicas';
 import TermosDeUso from './pages/Termos';
 import Cookie from './pages/Cookies';
 import Landing from './pages/Landing';
+import Financial from './pages/Financial';
 
 function App() {
 

@@ -14,6 +14,7 @@
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^6.4.8",
     "@mui/material": "^6.4.8",
+    "@radix-ui/react-tabs": "^1.1.13",
     "@supabase/supabase-js": "^2.39.7",
     "axios": "^1.8.4",
     "chart.js": "^4.4.8",
