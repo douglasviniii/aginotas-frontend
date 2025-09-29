@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Loader2, Receipt } from "lucide-react";
 import { api } from "../lib/api.ts";
-import nomelogodelvind from "../public/aginotaslogoescura.svg";
+import nomelogodelvind from "../public/logodelvind.png";
 import { toast } from "sonner";
 const API_URL = import.meta.env.VITE_API_URL;
 
