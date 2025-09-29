@@ -411,6 +411,17 @@ export const api = {
     return response.json();
   },
 
+  async getAllReceivablesForCustomer() {
+    const response = await fetch(`${API_URL}/financial/customer/receivables`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${Cookies.get("token")}`,
+      },
+    });
+    return response.json();
+  },
+
   async getAllSchedulingReceivables() {
     const response = await fetch(
       `${API_URL}/financial/scheduling/receivables`,

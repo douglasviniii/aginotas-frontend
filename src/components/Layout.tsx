@@ -133,14 +133,6 @@ export function Layout() {
       { icon: CreditCard, label: "Assinaturas", path: "/subscriptions" },
       { icon: Settings, label: "Configurações", path: "/UserConfig" },
     ],
-    "Admin": [
-      { icon: User2, label: `Olá, ${userData.name}. Seja bem vindo!` },
-      { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-      { icon: NotepadText, label: "Financeiro", path: "/financial" },
-      { icon: Users, label: "Clientes", path: "/customers" },
-      { icon: MessageSquare, label: "Chat com Suporte", path: "/chat" },
-      { icon: Settings, label: "Configurações", path: "/UserConfig" },
-    ],
   };
 
   const allowedStatuses = ["active", "past_due", "trialing"];
@@ -157,12 +149,13 @@ export function Layout() {
     navItems = [
       { icon: User2, label: `Olá, ${userData.name}. Seja bem vindo!` },
       { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
+      { icon: NotepadText, label: "Financeiro", path: "/financial" },
     ];
   } else if (!hasAnySubscription && userData.role === "admin") {
     // Acesso para Administrador
-    navItems = planNavItems["Admin"] || [
+    navItems = [
       { icon: User2, label: `Olá, ${userData.name}. Seja bem vindo!` },
-      { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
+      { icon: MessageSquare, label: "Chat com Suporte", path: "/chat" },
     ];
   } else if (!hasValidSubscription) {
     // Usuário TEM assinatura mas NÃO é válida - mostra Dashboard + Assinaturas

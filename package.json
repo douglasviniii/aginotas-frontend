@@ -21,6 +21,7 @@
     "cors": "^2.8.5",
     "dayjs": "^1.11.13",
     "file-saver": "^2.0.5",
+    "firebase": "^12.3.0",
     "html2canvas": "^1.4.1",
     "js-cookie": "^3.0.5",
     "jspdf": "^3.0.1",

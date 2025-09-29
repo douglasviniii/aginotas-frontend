@@ -1,4 +1,5 @@
 // types.ts
+import { Timestamp } from "firebase/firestore";
 
 export interface Document {
   type: "CNPJ" | "CPF";
@@ -262,6 +263,7 @@ export interface Recebivel {
   observations?: string;
   attachment?: string;
   dueDate?: string;
+  createdAt?: Timestamp;
 }
 
 export interface Agendamento {
@@ -275,4 +277,13 @@ export interface Agendamento {
   attachment?: string;
   dueDate?: string;
   billingDay: number;
+  createdAt?: Timestamp;
+}
+
+export interface UserData {
+  email: string;
+  name: string;
+  role: string;
+  sub: string;
+  subscriptionId: string;
 }
