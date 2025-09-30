@@ -156,7 +156,6 @@ export function Dashboard() {
     const token = Cookies.get("token") || Cookies.get("admin_token");
     if (!token || isTokenExpired(token)) {
       Cookies.remove("token");
-      Cookies.remove("admin_token");
       navigate("/login");
     } else {
       loadInvoices();
@@ -168,6 +167,7 @@ export function Dashboard() {
   }, [invoices, selectedMonth, selectedYear]);
 
   if (loading) return <LogoLoading size={100} text="Carregando..." />;
+
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
@@ -304,7 +304,12 @@ export function Dashboard() {
                   {nota.status === "issued" ? (
                     <td className="py-2 px-4 flex gap-2">
                       <button
-                        onClick={() => handleDownloadXML(nota.invoiceXML, nota.service.discrimination)}
+                        onClick={() =>
+                          handleDownloadXML(
+                            nota.invoiceXML,
+                            nota.service.discrimination
+                          )
+                        }
                         className="text-blue-600 hover:underline"
                       >
                         Baixar XML

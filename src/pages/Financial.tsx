@@ -55,7 +55,14 @@ export default function Financial() {
   const [statusAtual, setStatusAtual] = useState("");
 
   const tiposRecebivel = ["a receber", "pago", "parcelado"];
-
+  const [userData, setUserData] = useState({
+    sub: "",
+    email: "",
+    role: "",
+    name: "",
+    subscriptionId: "",
+  });
+  const [planName, setPlanName] = useState("");
   // Verificar role do usuário
   useEffect(() => {
     const userData = localStorage.getItem("user");
@@ -64,6 +71,7 @@ export default function Financial() {
         const parsedUser: UserData = JSON.parse(userData);
         setUserRole(parsedUser.role || "user");
         setUserId(parsedUser.sub || "");
+        setUserData(parsedUser);
       } catch (error) {
         console.error("Erro ao parsear user data:", error);
         setUserRole("user");
@@ -416,6 +424,11 @@ export default function Financial() {
 
   const fetchData = async () => {
     try {
+      if (userData.subscriptionId) {
+        const data = await api.getSubscriptionById(userData.subscriptionId);
+        setPlanName(data?.items?.data?.[0]?.price?.product?.name);
+      }
+
       if (userRole === "customer" && userId) {
         const customerReceivables = await api.getAllReceivablesForCustomer();
         setRecebiveis(customerReceivables);
@@ -624,6 +637,19 @@ export default function Financial() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (planName === "Plano Bronze" || planName === "Plano Prata") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-md">
+          <h2 className="text-xl font-bold mb-4">Acesso Restrito</h2>
+          <p className="text-gray-600">
+            Você não tem permissão para acessar esta área.
+          </p>
         </div>
       </div>
     );

@@ -6,7 +6,7 @@ import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
 import { Dashboard } from "./pages/Dashboard";
 import { Customers } from "./pages/Customers";
-import { History } from "./pages/History";
+/* import { History } from "./pages/History"; */
 import { Subscriptions } from "./pages/Subscriptions";
 import { UserConfig } from "./pages/UserConfig";
 import { Recover } from "./pages/Recover";
@@ -46,7 +46,6 @@ function App() {
           <Route path="/customers" element={<Customers />} />
           <Route path="/subscriptions" element={<Subscriptions />} />
           <Route path="/financial" element={<Financial />} />
-          <Route path="/history" element={<History />} />
           <Route path="/chat" element={<UserChat />} />
           <Route path="/UserConfig" element={<UserConfig />} />
         </Route>
