@@ -4,7 +4,7 @@ export function Pricing() {
   const navigate = useNavigate();
 
   const plan = {
-    id: "price_1SBOna2KqGFwEjvkD0oKKjlD",
+    id: "price_1SDB30PP263QZBqWLTTOvWPh",
     name: "Plano Bronze",
     price: 2999,
     interval: "mês",
