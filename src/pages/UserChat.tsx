@@ -28,7 +28,6 @@ export function UserChat() {
   const startChat = async () => {
     try {
       if (!chatId) {
-        setLoading(true);
         const data = await api.createChat({
           userId: userId,
           userName: senderName,
@@ -36,7 +35,6 @@ export function UserChat() {
         localStorage.setItem("chatId", data.chatId);
         setChatId(data.chatId);
         setSelectedChatId(data.chatId);
-        setLoading(false);
       } else {
         setSelectedChatId(chatId);
       }
@@ -110,11 +108,8 @@ export function UserChat() {
           type: "text",
           content: newMessage,
         };
-
-        setLoading(true);
         await api.sendMessage({ chatId: selectedChatId, ...msg });
         setNewMessage("");
-        setLoading(false);
       }
 
       setMessages((prev) => [...prev, msg]);
