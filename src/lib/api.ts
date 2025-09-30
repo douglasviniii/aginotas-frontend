@@ -10,11 +10,6 @@ export const api = {
       },
       body: JSON.stringify(data),
     });
-
-    if (!response.ok) {
-      throw new Error("Falha ao autenticar usuário");
-    }
-
     return response.json();
   },
 

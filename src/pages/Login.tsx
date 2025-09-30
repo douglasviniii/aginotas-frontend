@@ -17,10 +17,12 @@ export function Login() {
 
     try {
       const data = await api.login({ email, password });
+      if (data.error || data.message) {
+        throw new Error(data.message || data.error || "Erro ao fazer login");
+      }
       if (data.url) {
         window.open(data.url, "_blank");
-      }
-      if (!data.url) {
+      } else {
         Cookies.set("token", data.access_token, {
           secure: true,
           sameSite: "Strict",
