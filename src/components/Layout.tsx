@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import nomelogodelvind from "../public/logodelvindlayout.svg";
 import {
@@ -23,7 +23,6 @@ export function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
   const [userData, setUserData] = useState({
     sub: "",
     email: "",
@@ -31,7 +30,6 @@ export function Layout() {
     name: "",
     subscriptionId: "",
   });
-
   const [subscriptionData, setSubscriptionData] = useState({
     items: {
       data: [
@@ -45,7 +43,6 @@ export function Layout() {
       ],
     },
   });
-
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
     height: window.innerHeight,

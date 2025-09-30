@@ -73,10 +73,8 @@ export function UserChat() {
 
     const fetchMessages = async () => {
       try {
-        setLoading(true);
         const data = await api.getMessages(selectedChatId);
         setMessages(data);
-        setLoading(false);
       } catch (err) {
         console.error("Erro ao buscar mensagens:", err);
       }
