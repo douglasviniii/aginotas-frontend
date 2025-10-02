@@ -96,7 +96,7 @@ export function Layout() {
 
   const planNavItems = {
     "Plano Bronze": [
-      { icon: User2, label: `Olá, ${userData.name}. Seja bem vindo!` },
+      { icon: User2, label: `Olá, ${userData.name}. Seja bem vindo!🥉` },
       { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
       { icon: Users, label: "Clientes", path: "/customers" },
       { icon: MessageSquare, label: "Chat com Suporte", path: "/chat" },
@@ -104,7 +104,7 @@ export function Layout() {
       { icon: Settings, label: "Configurações", path: "/UserConfig" },
     ],
     "Plano Prata": [
-      { icon: User2, label: `Olá, ${userData.name}. Seja bem vindo!` },
+      { icon: User2, label: `Olá, ${userData.name}. Seja bem vindo!🥈` },
       { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
       { icon: Users, label: "Clientes", path: "/customers" },
       { icon: MessageSquare, label: "Chat com Suporte", path: "/chat" },
@@ -112,7 +112,7 @@ export function Layout() {
       { icon: Settings, label: "Configurações", path: "/UserConfig" },
     ],
     "Plano Ouro": [
-      { icon: User2, label: `Olá, ${userData.name}. Seja bem vindo!` },
+      { icon: User2, label: `Olá, ${userData.name}. Seja bem vindo!🥇` },
       { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
       { icon: NotepadText, label: "Financeiro", path: "/financial" },
       { icon: Users, label: "Clientes", path: "/customers" },
@@ -121,7 +121,7 @@ export function Layout() {
       { icon: Settings, label: "Configurações", path: "/UserConfig" },
     ],
     "Plano Diamante": [
-      { icon: User2, label: `Olá, ${userData.name}. Seja bem vindo!` },
+      { icon: User2, label: `Olá, ${userData.name}. Seja bem vindo!💎` },
       { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
       { icon: NotepadText, label: "Financeiro", path: "/financial" },
       { icon: Users, label: "Clientes", path: "/customers" },
@@ -242,6 +242,9 @@ export function Layout() {
               </div>
             );
           })}
+        </div>
+        <div className="mt-6 text-xs text-gray-400 text-center">
+          Sistema versão 1.0.0
         </div>
 
         <button

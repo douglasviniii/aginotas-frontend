@@ -49,9 +49,7 @@ export function ModalCreateCustomer({
         return;
       }
 
-      const response = await fetch(
-        `${API_URL}/user/receitaws/${cleanCNPJ}`
-      );
+      const response = await fetch(`${API_URL}/user/receitaws/${cleanCNPJ}`);
 
       if (!response.ok) {
         throw new Error("Erro ao consultar a API");
@@ -93,7 +91,6 @@ export function ModalCreateCustomer({
       }));
     } catch (error) {
       console.error("Erro ao buscar dados do CNPJ:", error);
-      alert("Não foi possível buscar os dados do CNPJ. Preencha manualmente.");
     }
   };
 

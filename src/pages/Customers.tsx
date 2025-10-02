@@ -101,6 +101,7 @@ export function Customers() {
       await api.createCustomer(newCustomer);
       fetchData();
       setLoading(false);
+      toast.success("Cliente criado com sucesso!");
     } catch (error) {
       toast.error("Ocorreu um erro ao criar cliente");
       setLoading(false);
