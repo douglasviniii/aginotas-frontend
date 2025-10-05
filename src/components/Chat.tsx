@@ -120,7 +120,7 @@ export default function ChatDelvi() {
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-4 flex justify-between items-center">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-white font-bold text-lg">Delvi Assistant</span>
+              <span className="text-white font-bold text-lg">Agi</span>
             </div>
             <button 
               onClick={() => setOpen(false)}
