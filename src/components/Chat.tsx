@@ -23,7 +23,7 @@ export default function ChatDelvi() {
     setTimeout(() => {
       setMessages([{ 
         sender: "bot", 
-        text: "👋 Olá! Eu sou o Delvi, seu assistente virtual. Antes de começarmos, qual é o seu nome?",
+        text: "👋 Olá! Eu sou o Agi, seu assistente virtual. Antes de começarmos, qual é o seu nome?",
         type: "info"
       }]);
       setStep("name");
