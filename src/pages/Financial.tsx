@@ -1,6 +1,5 @@
 import * as Tabs from "@radix-ui/react-tabs";
 import {
-  User,
   Calendar,
   List,
   Home,
@@ -12,11 +11,13 @@ import {
   AlertCircle,
   Printer,
   Filter,
+  User2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { api } from "../lib/api";
-import { Agendamento, Customer, Recebivel, UserData } from "./types";
+import { Agendamento, Customer, Recebivel, User, UserData } from "./types";
+import { LogoLoading } from "../components/Loading";
 
 export default function Financial() {
   const [recebiveis, setRecebiveis] = useState<Recebivel[]>([]);
@@ -24,7 +25,7 @@ export default function Financial() {
   const [clientes, setClientes] = useState<Customer[]>([]);
   const [userRole, setUserRole] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
-
+  const [user, setUser] = useState<User>();
   // Filtros para dashboard
   const [anoFiltro, setAnoFiltro] = useState<number>(new Date().getFullYear());
   const [mesFiltro, setMesFiltro] = useState<number>(new Date().getMonth() + 1);
@@ -63,6 +64,27 @@ export default function Financial() {
     subscriptionId: "",
   });
   const [planName, setPlanName] = useState("");
+  const [invoice, setInvoice] = useState({
+    dateOfCompetence: "",
+    scheduledInvoiceDay: 0,
+    dueDate: "",
+    service: {
+      values: {
+        otherWithholdingsValue: 0,
+        otherWithholdingsRetained: false,
+      },
+      discrimination: "",
+      codigoNbs: "",
+      municipalCode: "4115804",
+      enforceabilityofISS: true,
+      municipalityIncidence: "4115804",
+      serviceItemList: [], // pego do usuário
+    },
+    serviceRecipient: "",
+    generateReceivable: false,
+  });
+  const [emitirNotaFiscal, setEmitirNotaFiscal] = useState(false);
+  const [loading, setLoading] = useState(false);
   // Verificar role do usuário
   useEffect(() => {
     const userData = localStorage.getItem("user");
@@ -292,15 +314,6 @@ export default function Financial() {
       return true;
     }
 
-    console.log(
-      "Data filtrada:",
-      dataRecebivel,
-      "Ano:",
-      dataRecebivel.getFullYear(),
-      "Mês:",
-      dataRecebivel.getMonth() + 1
-    );
-
     return (
       dataRecebivel.getFullYear() === anoFiltro &&
       dataRecebivel.getMonth() + 1 === mesFiltro
@@ -321,6 +334,11 @@ export default function Financial() {
         return;
       }
 
+      let recebiveisCriados = 0;
+      let mensagemNotaFiscal = "";
+
+      setLoading(true);
+
       if (tipoGerar === "parcelado") {
         if (parcelasGerar <= 0) {
           toast.error("Digite um número válido de parcelas!");
@@ -329,6 +347,7 @@ export default function Financial() {
 
         const valorParcela = valorNumerico / parcelasGerar;
 
+        // Criar todas as parcelas primeiro
         for (let i = 1; i <= parcelasGerar; i++) {
           const parcela: Recebivel = {
             serviceRecipient: cliente.id,
@@ -340,9 +359,30 @@ export default function Financial() {
             attachment: attachmentGerar,
           };
 
-          await api.createReceivable(parcela);
+          const response = await api.createReceivable(parcela);
+          recebiveisCriados++;
+          // toast.success(`Parcela ${i} criada: ${response.message}`);
         }
+
+        // Emitir nota fiscal se solicitado
+        if (emitirNotaFiscal) {
+          try {
+            const responseNotaFiscal = await api.generateInvoice(invoice);
+            mensagemNotaFiscal = ` | Nota fiscal: ${
+              responseNotaFiscal.message || "Emitida com sucesso"
+            }`;
+          } catch (error: any) {
+            mensagemNotaFiscal = ` | Erro na nota fiscal: ${
+              error.response?.data?.message || error.message
+            }`;
+          }
+        }
+
+        toast.success(
+          `Recebível parcelado em ${parcelasGerar} vezes gerado com sucesso!${mensagemNotaFiscal}`
+        );
       } else {
+        // Caso único
         const novo: Recebivel = {
           serviceRecipient: cliente.id,
           value: valorNumerico,
@@ -353,15 +393,27 @@ export default function Financial() {
           attachment: attachmentGerar,
         };
 
-        await api.createReceivable(novo);
+        const responseRecebivel = await api.createReceivable(novo);
+
+        // Emitir nota fiscal se solicitado
+        if (emitirNotaFiscal) {
+          try {
+            const responseNotaFiscal = await api.generateInvoice(invoice);
+            mensagemNotaFiscal = ` | Nota fiscal: ${
+              responseNotaFiscal.message || "Emitida com sucesso"
+            }`;
+          } catch (error: any) {
+            mensagemNotaFiscal = ` | Erro na nota fiscal: ${
+              error.response?.data?.message || error.message
+            }`;
+          }
+        }
+
+        toast.success(`Recebível gerado com sucesso!${mensagemNotaFiscal}`);
       }
 
+      setLoading(false);
       fetchData();
-      toast.success(
-        tipoGerar === "parcelado"
-          ? `Recebível parcelado em ${parcelasGerar} vezes gerado com sucesso!`
-          : "Recebível gerado com sucesso!"
-      );
 
       // Limpa os campos
       setValorGerar("");
@@ -370,8 +422,36 @@ export default function Financial() {
       setAttachmentGerar("");
       setParcelasGerar(1);
       setClienteSelecionadoGerar("");
-    } catch (error) {
-      toast.error("Ocorreu um erro ao gerar o recebível!");
+      setEmitirNotaFiscal(false);
+      setInvoice({
+        dateOfCompetence: "",
+        scheduledInvoiceDay: 0,
+        dueDate: "",
+        service: {
+          values: {
+            otherWithholdingsValue: 0,
+            otherWithholdingsRetained: false,
+          },
+          discrimination: "",
+          codigoNbs: "",
+          municipalCode: "4115804",
+          enforceabilityofISS: true,
+          municipalityIncidence: "4115804",
+          serviceItemList: [],
+        },
+        serviceRecipient: "",
+        generateReceivable: false,
+      });
+    } catch (error: any) {
+      console.error("Erro ao gerar recebível:", error);
+
+      // Captura a mensagem de erro da API
+      const mensagemErro =
+        error.response?.data?.message ||
+        error.message ||
+        "Ocorreu um erro ao gerar o recebível!";
+
+      toast.error(mensagemErro);
     }
   };
 
@@ -424,6 +504,8 @@ export default function Financial() {
 
   const fetchData = async () => {
     try {
+      const userData = await api.getUserById();
+      setUser(userData);
       if (userData.subscriptionId) {
         const data = await api.getSubscriptionById(userData.subscriptionId);
         setPlanName(data?.items?.data?.[0]?.price?.product?.name);
@@ -545,6 +627,24 @@ export default function Financial() {
     }
   };
 
+  function formatarInputReais(valor: number) {
+    if (valor === undefined || valor === null) return "";
+
+    // Converte para centavos e depois para string
+    const valorCentavos = Math.round(valor * 100);
+    const str = valorCentavos.toString();
+
+    // Formata para pt-BR
+    const numero = Number(str) / 100;
+
+    return numero.toLocaleString("pt-BR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  }
+
+  if (loading) return <LogoLoading size={100} text="Carregando..." />;
+
   // Se for customer, mostra apenas a visualização simplificada
   if (userRole === "customer") {
     return (
@@ -642,7 +742,7 @@ export default function Financial() {
     );
   }
 
-  if (planName === "Plano Bronze" || planName === "Plano Prata") {
+  /*   if (planName === "Plano Bronze" || planName === "Plano Prata") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-md">
@@ -653,7 +753,7 @@ export default function Financial() {
         </div>
       </div>
     );
-  }
+  } */
 
   // Se for admin ou user, mostra o financeiro completo
   return (
@@ -705,7 +805,7 @@ export default function Financial() {
                   value="gerar"
                   className="flex items-center gap-3 px-6 py-3 text-sm font-medium rounded-xl transition-all duration-200 data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm text-blue-600 hover:text-blue-700"
                 >
-                  <User size={18} /> Gerar Recebível
+                  <User2 size={18} /> Gerar Recebível
                 </Tabs.Trigger>
                 <Tabs.Trigger
                   value="agendamento"
@@ -890,7 +990,7 @@ export default function Financial() {
                 {/* Conteúdo da aba Gerar Recebível */}
                 <div className="bg-white rounded-2xl border border-blue-100 p-6">
                   <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                    <User className="w-6 h-6 text-blue-600" />
+                    <User2 className="w-6 h-6 text-blue-600" />
                     Gerar Novo Recebível
                   </h2>
 
@@ -903,9 +1003,13 @@ export default function Financial() {
                         <select
                           className="mt-1 block w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                           value={clienteSelecionadoGerar}
-                          onChange={(e) =>
-                            setClienteSelecionadoGerar(e.target.value)
-                          }
+                          onChange={(e) => {
+                            setClienteSelecionadoGerar(e.target.value),
+                              setInvoice({
+                                ...invoice,
+                                serviceRecipient: e.target.value,
+                              });
+                          }}
                         >
                           <option value="">Selecione um cliente</option>
                           {clientes.map((c) => (
@@ -995,6 +1099,431 @@ export default function Financial() {
                       </label>
                     </div>
                   </div>
+
+                  {/* Checkbox para emissão de nota fiscal */}
+{/*                   <div className="mt-6">
+                    <label className="flex items-center space-x-3">
+                      <input
+                        type="checkbox"
+                        checked={emitirNotaFiscal}
+                        onChange={(e) => setEmitirNotaFiscal(e.target.checked)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                      <span className="text-sm font-medium text-gray-700">
+                        Desejo emitir a nota fiscal
+                      </span>
+                    </label>
+                  </div> */}
+
+                  {/* Formulário para nota fiscal */}
+                  {emitirNotaFiscal && (
+                    <div className="mt-6 p-6 border border-gray-200 rounded-xl bg-gray-50">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                        Dados para Nota Fiscal
+                      </h3>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Data de Competência */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">
+                            Data de Competência *
+                          </label>
+                          <input
+                            required
+                            type="date"
+                            value={invoice.dateOfCompetence}
+                            onChange={(e) =>
+                              setInvoice({
+                                ...invoice,
+                                dateOfCompetence: e.target.value,
+                              })
+                            }
+                            className="mt-1 block w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                          />
+                        </div>
+
+                        {/* Código Municipal */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">
+                            Código Municipal *
+                          </label>
+                          <input
+                            required
+                            type="text"
+                            value={invoice.service.municipalCode}
+                            onChange={(e) =>
+                              setInvoice({
+                                ...invoice,
+                                service: {
+                                  ...invoice.service,
+                                  municipalCode: e.target.value,
+                                },
+                              })
+                            }
+                            className="mt-1 block w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                          />
+                        </div>
+
+                        {/* Discriminação do Serviço */}
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-medium text-gray-700">
+                            Discriminação do Serviço *
+                          </label>
+                          <input
+                            required
+                            type="text"
+                            value={invoice.service.discrimination}
+                            onChange={(e) =>
+                              setInvoice({
+                                ...invoice,
+                                service: {
+                                  ...invoice.service,
+                                  discrimination: e.target.value,
+                                },
+                              })
+                            }
+                            className="mt-1 block w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                          />
+                        </div>
+
+                        {/* Municipio Incidencia */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">
+                            Municipio Incidência *
+                          </label>
+                          <input
+                            required
+                            type="text"
+                            value={invoice.service.municipalityIncidence}
+                            onChange={(e) =>
+                              setInvoice({
+                                ...invoice,
+                                service: {
+                                  ...invoice.service,
+                                  municipalityIncidence: e.target.value,
+                                },
+                              })
+                            }
+                            className="mt-1 block w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                          />
+                        </div>
+
+                        {/* Exigibilidade ISS */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">
+                            Exigibilidade ISS *
+                          </label>
+                          <select
+                            required
+                            value={
+                              invoice.service.enforceabilityofISS
+                                ? "true"
+                                : "false"
+                            }
+                            onChange={(e) =>
+                              setInvoice({
+                                ...invoice,
+                                service: {
+                                  ...invoice.service,
+                                  enforceabilityofISS:
+                                    e.target.value === "true",
+                                },
+                              })
+                            }
+                            className="mt-1 block w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                          >
+                            <option value="true">Sim</option>
+                            <option value="false">Não</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Lista de Itens de Serviço */}
+                      <div className="mt-6">
+                        <label className="block text-sm font-medium text-gray-700 mb-4">
+                          Itens de Serviço
+                        </label>
+
+                        {invoice.service.serviceItemList.map((item, index) => (
+                          <div
+                            key={index}
+                            className="space-y-4 p-4 border border-gray-200 rounded-lg relative mb-4 bg-white"
+                          >
+                            {/* Dropdown CNAE */}
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700">
+                                CNAE e Descrição *
+                              </label>
+                              <select
+                                required
+                                value={item.cnaeCode}
+                                onChange={async (e) => {
+                                  const selected =
+                                    user.enterprise.economicActivity.find(
+                                      (act) => act.code === e.target.value
+                                    );
+                                  const newList = [
+                                    ...invoice.service.serviceItemList,
+                                  ];
+
+                                  if (selected) {
+                                    newList[index].cnaeCode = selected.code;
+                                    newList[index].description =
+                                      selected.description;
+
+                                    // Faz fetch para pegar o itemListService baseado no CNAE
+                                    try {
+                                      const rawCode = selected.code;
+                                      const sanitizedCode = rawCode.replace(
+                                        /[\.\-]/g,
+                                        ""
+                                      );
+
+                                      const response = await api.serviceByCnae(
+                                        sanitizedCode
+                                      );
+                                      newList[index].itemListService =
+                                        response[0].listaServicoVo.id;
+                                      newList[index].aliquot =
+                                        response[0].listaServicoVo.aliquota;
+                                    } catch (err) {
+                                      console.error(
+                                        "Erro ao buscar itemListService:",
+                                        err
+                                      );
+                                    }
+                                  }
+
+                                  setInvoice({
+                                    ...invoice,
+                                    service: {
+                                      ...invoice.service,
+                                      serviceItemList: newList,
+                                    },
+                                  });
+                                }}
+                                className="mt-1 block w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                              >
+                                {user.enterprise.economicActivity.map((act) => (
+                                  <option key={act.code} value={act.code}>
+                                    {act.code} - {act.description}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              {/* Item List Service */}
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700">
+                                  Código do Item de Serviço *
+                                </label>
+                                <input
+                                  required
+                                  type="text"
+                                  placeholder="ItemListService"
+                                  value={item.itemListService}
+                                  onChange={(e) => {
+                                    const newList = [
+                                      ...invoice.service.serviceItemList,
+                                    ];
+                                    newList[index].itemListService =
+                                      e.target.value;
+                                    setInvoice({
+                                      ...invoice,
+                                      service: {
+                                        ...invoice.service,
+                                        serviceItemList: newList,
+                                      },
+                                    });
+                                  }}
+                                  className="mt-1 block w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                />
+                              </div>
+
+                              {/* Tributável */}
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700">
+                                  Tributável
+                                </label>
+                                <select
+                                  value={item.taxable ? "true" : "false"}
+                                  onChange={(e) => {
+                                    const newList = [
+                                      ...invoice.service.serviceItemList,
+                                    ];
+                                    newList[index].taxable =
+                                      e.target.value === "true";
+                                    setInvoice({
+                                      ...invoice,
+                                      service: {
+                                        ...invoice.service,
+                                        serviceItemList: newList,
+                                      },
+                                    });
+                                  }}
+                                  className="mt-1 block w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                >
+                                  <option value="true">Tributável</option>
+                                  <option value="false">Não Tributável</option>
+                                </select>
+                              </div>
+
+                              {/* Quantidade */}
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700">
+                                  Quantidade *
+                                </label>
+                                <input
+                                  required
+                                  type="number"
+                                  placeholder="Quantidade"
+                                  value={item.quantity}
+                                  onChange={(e) => {
+                                    const newList = [
+                                      ...invoice.service.serviceItemList,
+                                    ];
+                                    newList[index].quantity = Number(
+                                      e.target.value
+                                    );
+                                    newList[index].netValue =
+                                      Number(e.target.value) *
+                                      newList[index].unitValue;
+                                    setInvoice({
+                                      ...invoice,
+                                      service: {
+                                        ...invoice.service,
+                                        serviceItemList: newList,
+                                      },
+                                    });
+                                  }}
+                                  className="mt-1 block w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                />
+                              </div>
+
+                              {/* Valor Unitário */}
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700">
+                                  Valor Unitário *
+                                </label>
+                                <input
+                                  required
+                                  type="text"
+                                  placeholder="Valor Unitário"
+                                  value={formatarInputReais(item.unitValue)}
+                                  onChange={(e) => {
+                                    const onlyNumbers = e.target.value.replace(
+                                      /\D/g,
+                                      ""
+                                    );
+                                    const numero = Number(onlyNumbers) / 100;
+                                    const newList = [
+                                      ...invoice.service.serviceItemList,
+                                    ];
+                                    newList[index].unitValue = numero;
+                                    newList[index].netValue =
+                                      numero * newList[index].quantity;
+                                    setInvoice({
+                                      ...invoice,
+                                      service: {
+                                        ...invoice.service,
+                                        serviceItemList: newList,
+                                      },
+                                    });
+                                  }}
+                                  className="mt-1 block w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                />
+                              </div>
+
+                              {/* Desconto */}
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700">
+                                  Desconto
+                                </label>
+                                <input
+                                  type="text"
+                                  placeholder="Desconto"
+                                  value={formatarInputReais(item.discount)}
+                                  onChange={(e) => {
+                                    const onlyNumbers = e.target.value.replace(
+                                      /\D/g,
+                                      ""
+                                    );
+                                    const numero = Number(onlyNumbers) / 100;
+                                    const newList = [
+                                      ...invoice.service.serviceItemList,
+                                    ];
+                                    newList[index].discount = numero;
+                                    setInvoice({
+                                      ...invoice,
+                                      service: {
+                                        ...invoice.service,
+                                        serviceItemList: newList,
+                                      },
+                                    });
+                                  }}
+                                  className="mt-1 block w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                />
+                              </div>
+                            </div>
+
+                            {/* Botão para remover item */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newList =
+                                  invoice.service.serviceItemList.filter(
+                                    (_, i) => i !== index
+                                  );
+                                setInvoice({
+                                  ...invoice,
+                                  service: {
+                                    ...invoice.service,
+                                    serviceItemList: newList,
+                                  },
+                                });
+                              }}
+                              className="absolute top-2 right-2 text-red-600 font-bold text-lg hover:text-red-800"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+
+                        {/* Botão adicionar item */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const firstItem =
+                              user.enterprise.economicActivity[0];
+                            const newItem = {
+                              itemListService: "",
+                              cnaeCode: firstItem?.code || "",
+                              description: firstItem?.description || "",
+                              quantity: 1,
+                              discount: 0,
+                              unitValue: 0,
+                              netValue: 0,
+                              taxable: true,
+                            };
+                            setInvoice({
+                              ...invoice,
+                              service: {
+                                ...invoice.service,
+                                serviceItemList: [
+                                  ...invoice.service.serviceItemList,
+                                  newItem,
+                                ],
+                              },
+                            });
+                          }}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-all duration-200"
+                        >
+                          + Adicionar Item
+                        </button>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="mt-6 flex justify-end">
                     <button

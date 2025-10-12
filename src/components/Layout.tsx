@@ -98,6 +98,7 @@ export function Layout() {
     "Plano Bronze": [
       { icon: User2, label: `Olá, ${userData.name}. Seja bem vindo!🥉` },
       { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
+      { icon: NotepadText, label: "Financeiro", path: "/financial" },
       { icon: Users, label: "Clientes", path: "/customers" },
       { icon: MessageSquare, label: "Chat com Suporte", path: "/chat" },
       { icon: CreditCard, label: "Assinaturas", path: "/subscriptions" },
@@ -152,6 +153,7 @@ export function Layout() {
     navItems = [
       { icon: User2, label: `Olá, ${userData.name}. Seja bem vindo!` },
       { icon: MessageSquare, label: "Chat com Suporte", path: "/chat" },
+      { icon: Settings, label: "Configurações", path: "/UserConfig" },
     ];
   } else if (!hasValidSubscription) {
     // Usuário TEM assinatura mas NÃO é válida - mostra Dashboard + Assinaturas

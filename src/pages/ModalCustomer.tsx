@@ -35,11 +35,10 @@ const ModalCustomer: React.FC<Props> = ({
   const [invoiceCustomer, setInvoiceCustomer] = useState([]);
   const [schedulingCustomer, setSchedulingCustomer] = useState([]);
   const [messageError, setMessageError] = useState("");
+
   const fetchData = async () => {
     try {
-      const storedUser = localStorage.getItem("user");
-      const userObj = JSON.parse(storedUser as string);
-      const userData = await api.getUserById(userObj.sub);
+      const userData = await api.getUserById();
       setUser(userData);
       getInvoicesByCustomer(), getSchedulingsByCustomer();
     } catch (error) {}
@@ -66,6 +65,7 @@ const ModalCustomer: React.FC<Props> = ({
       serviceItemList: user?.enterprise.economicActivity || [], // pego do usuário
     },
     serviceRecipient: customer.id || "",
+    generateReceivable: false,
   });
 
   function formatarInputReais(valor: number) {
@@ -201,12 +201,12 @@ const ModalCustomer: React.FC<Props> = ({
     {
       key: "schedule",
       label: "Programar",
-      plans: ["Plano Prata", "Plano Ouro", "Plano Diamante"],
+      plans: ["Plano Bronze", "Plano Prata", "Plano Ouro", "Plano Diamante"],
     }, // bronze não tem
     {
       key: "history-schedulings",
       label: "Programadas",
-      plans: ["Plano Prata", "Plano Ouro", "Plano Diamante"],
+      plans: ["Plano Bronze", "Plano Prata", "Plano Ouro", "Plano Diamante"],
     },
     {
       key: "delete",
@@ -555,27 +555,6 @@ const ModalCustomer: React.FC<Props> = ({
                 />
               </div>
 
-              {/* Código NBS */}
-              {/*               <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Código NBS
-                </label>
-                <input
-                  type="text"
-                  value={invoice.service.codigoNbs}
-                  onChange={(e) =>
-                    setInvoice({
-                      ...invoice,
-                      service: {
-                        ...invoice.service,
-                        codigoNbs: e.target.value,
-                      },
-                    })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div> */}
-
               {/* Código Municipal */}
               <div>
                 <label className="block text-sm font-medium text-gray-700">
@@ -643,56 +622,6 @@ const ModalCustomer: React.FC<Props> = ({
                   <option value="false">Não</option>
                 </select>
               </div>
-
-              {/* Valores */}
-              {/*               <div className="mt-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  OutrasRetencoes
-                </label>
-                <input
-                  type="number"
-                  value={invoice.service.values.otherWithholdingsValue}
-                  onChange={(e) =>
-                    setInvoice({
-                      ...invoice,
-                      service: {
-                        ...invoice.service,
-                        values: {
-                          ...invoice.service.values,
-                          otherWithholdingsValue: Number(e.target.value),
-                        },
-                      },
-                    })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-                <label className="block text-sm font-medium text-gray-700 mt-2">
-                  RetidoOutrasRetencoes
-                </label>
-                <select
-                  value={
-                    invoice.service.values.otherWithholdingsRetained
-                      ? "true"
-                      : "false"
-                  }
-                  onChange={(e) =>
-                    setInvoice({
-                      ...invoice,
-                      service: {
-                        ...invoice.service,
-                        values: {
-                          ...invoice.service.values,
-                          otherWithholdingsRetained: e.target.value === "false",
-                        },
-                      },
-                    })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="true">Sim</option>
-                  <option value="false">Não</option>
-                </select>
-              </div> */}
 
               {/* Lista de Itens */}
               <label className="block text-sm font-medium text-gray-700 mt-4">
@@ -929,6 +858,27 @@ const ModalCustomer: React.FC<Props> = ({
               >
                 + Adicionar Item
               </button>
+
+              {/* Checkbox para emissão do recebivel */}
+              <div className="mt-6">
+                {" "}
+                <label className="flex items-center space-x-3">
+                  <input
+                    type="checkbox"
+                    checked={invoice.generateReceivable}
+                    onChange={(e) =>
+                      setInvoice({
+                        ...invoice,
+                        generateReceivable: e.target.checked,
+                      })
+                    }
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <span className="text-sm font-medium text-gray-700">
+                    Desejo emitir o recebível
+                  </span>
+                </label>
+              </div>
             </div>
           )}
 
@@ -1028,26 +978,6 @@ const ModalCustomer: React.FC<Props> = ({
                 />
               </div>
 
-              {/* Data de Vencimento */}
-              {/*               <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Data de Vencimento
-                </label>
-                <input
-                  required
-                  type="date"
-                  value={invoice.dueDate}
-                  onChange={(e) =>
-                    setInvoice({
-                      ...invoice,
-                      dueDate: e.target.value, // ainda em yyyy-MM-dd, você converte na hora do envio
-                    })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div> */}
-
-              {/* Reaproveita os mesmos campos da emissão avulsa */}
               {/* Data de Competência */}
               <div>
                 <label className="block text-sm font-medium text-gray-700">
@@ -1153,57 +1083,6 @@ const ModalCustomer: React.FC<Props> = ({
                   <option value="false">Não</option>
                 </select>
               </div>
-
-              {/* Valores */}
-              {/*               <div className="mt-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Outras Retenções
-                </label>
-                <input
-                  type="number"
-                  value={invoice.service.values.otherWithholdingsValue}
-                  onChange={(e) =>
-                    setInvoice({
-                      ...invoice,
-                      service: {
-                        ...invoice.service,
-                        values: {
-                          ...invoice.service.values,
-                          otherWithholdingsValue: Number(e.target.value),
-                        },
-                      },
-                    })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                /> */}
-
-              {/*                 <label className="block text-sm font-medium text-gray-700 mt-2">
-                  Retido Outras Retenções
-                </label>
-                <select
-                  value={
-                    invoice.service.values.otherWithholdingsRetained
-                      ? "true"
-                      : "false"
-                  }
-                  onChange={(e) =>
-                    setInvoice({
-                      ...invoice,
-                      service: {
-                        ...invoice.service,
-                        values: {
-                          ...invoice.service.values,
-                          otherWithholdingsRetained: e.target.value === "true",
-                        },
-                      },
-                    })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="true">Sim</option>
-                  <option value="false">Não</option>
-                </select>
-              </div> */}
 
               {/* Lista de Itens (igual ao invoice) */}
               <label className="block text-sm font-medium text-gray-700 mt-4">
@@ -1438,6 +1317,27 @@ const ModalCustomer: React.FC<Props> = ({
               >
                 + Adicionar Item
               </button>
+
+              {/* Checkbox para emissão do recebivel */}
+              <div className="mt-6">
+                {" "}
+                <label className="flex items-center space-x-3">
+                  <input
+                    type="checkbox"
+                    checked={invoice.generateReceivable}
+                    onChange={(e) =>
+                      setInvoice({
+                        ...invoice,
+                        generateReceivable: e.target.checked,
+                      })
+                    }
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <span className="text-sm font-medium text-gray-700">
+                    Desejo emitir o recebível
+                  </span>
+                </label>
+              </div>
             </div>
           )}
 

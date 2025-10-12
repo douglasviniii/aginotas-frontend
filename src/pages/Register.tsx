@@ -127,24 +127,40 @@ export function Register() {
       toast.error("Preencha todos os campos corretamente.");
       return;
     }
+
     setIsLoading(true);
     setError("");
 
-    const dataReceitaWs = await api.receitaWs(cleanCNPJ(cnpj));
-
-    const economicActivity = [
-      ...dataReceitaWs.atividade_principal.map((item) => ({
-        code: item.code,
-        description: item.text,
-      })),
-      ...dataReceitaWs.atividades_secundarias.map((item) => ({
-        code: item.code,
-        description: item.text,
-      })),
-    ];
-
     try {
-      const user = await api.create_user({
+      let dataReceitaWs;
+      try {
+        dataReceitaWs = await api.receitaWs(cleanCNPJ(cnpj));
+        if (!dataReceitaWs?.atividade_principal) {
+          throw new Error("Dados da Receita WS incompletos ou inválidos");
+        }
+      } catch (receitaError: any) {
+        throw new Error(
+          `Falha ao consultar CNPJ: ${
+            receitaError.message || "Tente novamente"
+          }`
+        );
+      }
+      const economicActivity = [
+        ...(dataReceitaWs.atividade_principal || []).map((item: any) => ({
+          code: item.code,
+          description: item.text,
+        })),
+        ...(dataReceitaWs.atividades_secundarias || []).map((item: any) => ({
+          code: item.code,
+          description: item.text,
+        })),
+      ];
+
+      if (economicActivity.length === 0) {
+        throw new Error("Nenhuma atividade econômica encontrada para o CNPJ");
+      }
+
+      const userData = {
         name,
         email,
         password,
@@ -160,25 +176,67 @@ export function Register() {
         enterprise: {
           document: { type: "CNPJ", number: cnpj },
           accumulatedGrossRevenueRtb12: Number(accumulatedGrossRevenueRtb12),
-          economicActivity: economicActivity,
+          economicActivity,
         },
-      });
+      };
 
-      if (!user.id) throw new Error("Erro ao criar usuário");
+      let user;
+      try {
+        user = await api.create_user(userData);
+
+        if (!user?.id) {
+          throw new Error("Resposta inválida ao criar usuário");
+        }
+      } catch (userError: any) {
+        if (
+          userError.message?.includes("email") ||
+          userError.message?.includes("Email")
+        ) {
+          throw new Error("Este email já está em uso. Tente outro.");
+        }
+        throw new Error(
+          `Falha ao criar usuário: ${userError.message || "Tente novamente"}`
+        );
+      }
 
       const priceId = localStorage.getItem("selectedPlanId");
 
-      const response = await api.create_checkout({
-        id: user.id,
-        email: user.email,
-        priceId: priceId,
-      });
-      if (!response.url) throw new Error("Erro ao gerar checkout.");
-      window.location.href = response.url;
+      if (!priceId) {
+        throw new Error(
+          "Plano selecionado não encontrado. Por favor, selecione um plano novamente."
+        );
+      }
+
+      let checkoutResponse;
+      try {
+        checkoutResponse = await api.create_checkout({
+          id: user.id,
+          email: user.email,
+          priceId: priceId,
+        });
+
+        if (!checkoutResponse?.url) {
+          throw new Error("URL de checkout não gerada");
+        }
+      } catch (checkoutError: any) {
+        throw new Error(
+          `Falha ao gerar checkout: ${
+            checkoutError.message || "Tente novamente"
+          }`
+        );
+      }
+
       localStorage.removeItem("selectedPlanId");
+      window.location.href = checkoutResponse.url;
     } catch (err: any) {
-      setError(err.message || "Erro ao criar usuário.");
-      toast.error(err.message || "Erro ao criar usuário.");
+      const errorMessage = err.message || "Erro ao processar solicitação";
+
+      setError(errorMessage);
+      toast.error(errorMessage);
+
+      if (process.env.NODE_ENV === "development") {
+        console.error("Erro no handleStep1Submit:", err);
+      }
     } finally {
       setIsLoading(false);
     }

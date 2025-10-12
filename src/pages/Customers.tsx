@@ -27,7 +27,7 @@ export function Customers() {
       ],
     },
   });
-  const [messageError, setMessageError] = useState("");
+  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   const fetchData = async () => {
@@ -140,18 +140,18 @@ export function Customers() {
   const handleGenerateInvoice = async (data: any) => {
     try {
       setLoading(true);
-      setMessageError("");
+      setMessage("");
       const response = await api.generateInvoice(data);
       setLoading(false);
-      setMessageError(response.error);
-      toast.error(response.error);
+      setMessage(response.message);
+      toast.error(response.message);
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.message ||
         error.message ||
         "Erro ao gerar nota fiscal";
       setLoading(false);
-      setMessageError(errorMessage);
+      setMessage(errorMessage);
       toast.error(errorMessage);
     }
   };
