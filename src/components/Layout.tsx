@@ -226,7 +226,7 @@ export function Layout() {
           })}
         </div>
         <div className="mt-6 text-xs text-gray-400 text-center">
-          Sistema versão 1.1.0
+          Sistema versão 1.2.0
         </div>
 
         <button
