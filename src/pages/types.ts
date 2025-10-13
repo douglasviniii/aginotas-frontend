@@ -64,6 +64,7 @@ export type User = {
     city: string;
     state: string;
     zipCode: string;
+    municipalCode: string;
   };
 
   enterprise: {
@@ -228,7 +229,7 @@ export interface Message {
   timestamp?: number;
 }
 
-export interface Customer {
+export interface Customer extends User {
   id: string;
   corporateName: string;
   email: string;
@@ -286,4 +287,39 @@ export interface UserData {
   role: string;
   sub: string;
   subscriptionId: string;
+}
+
+export interface Nota {
+  id: string;
+  invoiceXML: string;
+  serviceProvider: string;
+  dateOfCompetence: string; // "dd-MM-yyyy"
+  serviceRecipient: string;
+  service: {
+    values: {
+      otherWithholdingsValue: number;
+      otherWithholdingsRetained: boolean;
+    };
+    discrimination: string;
+    codigoNbs: string;
+    municipalCode: string;
+    enforceabilityofISS: boolean;
+    municipalityIncidence: string;
+    serviceItemList: {
+      itemListService: string;
+      cnaeCode: string;
+      description: string;
+      taxable: boolean;
+      quantity: number;
+      discount: number;
+      unitValue: number;
+      netValue: number;
+    }[];
+  };
+  value: number;
+  createdAt: {
+    _seconds: number;
+    _nanoseconds: number;
+  };
+  status: string;
 }

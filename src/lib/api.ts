@@ -45,6 +45,17 @@ export const api = {
     return response.json();
   },
 
+  async getAllUsers() {
+    const response = await fetch(`${API_URL}/user/all`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${Cookies.get("token")}`,
+      },
+    });
+    return response.json();
+  },
+
   async updateUser(data: any, file?: File) {
     const formData = new FormData();
     formData.append("userBody", JSON.stringify(data));
@@ -53,6 +64,24 @@ export const api = {
     }
 
     const response = await fetch(`${API_URL}/user/update`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${Cookies.get("token")}`,
+      },
+      body: formData,
+    });
+
+    return response.json();
+  },
+
+  async updateUserById(id: string, data: any, file?: File) {
+    const formData = new FormData();
+    formData.append("userBody", JSON.stringify(data));
+    if (file) {
+      formData.append("userBody[enterprise][logoEnterprise]", file);
+    }
+
+    const response = await fetch(`${API_URL}/user/update/${id}`, {
       method: "PATCH",
       headers: {
         Authorization: `Bearer ${Cookies.get("token")}`,

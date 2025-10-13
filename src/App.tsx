@@ -19,6 +19,9 @@ import TermosDeUso from "./pages/Termos";
 import Cookie from "./pages/Cookies";
 import Landing from "./pages/Landing";
 import Financial from "./pages/Financial";
+import { AdminUsers } from "./pages/AdminUsers";
+import { AdminDashboard } from "./pages/AdminDashboard";
+import { MyInvoices } from "./pages/MyInvoices";
 
 function App() {
   useEffect(() => {
@@ -43,7 +46,10 @@ function App() {
         <Route path="/recover" element={<Recover />} />
         <Route element={<Layout />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/main-dashboard" element={<AdminDashboard />} />
           <Route path="/customers" element={<Customers />} />
+          <Route path="/users" element={<AdminUsers />} />
+          <Route path="/my-invoices" element={<MyInvoices />} />
           <Route path="/subscriptions" element={<Subscriptions />} />
           <Route path="/financial" element={<Financial />} />
           <Route path="/chat" element={<UserChat />} />

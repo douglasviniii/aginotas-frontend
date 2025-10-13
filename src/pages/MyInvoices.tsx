@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Users, Receipt, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
@@ -10,49 +9,14 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import { api } from "../lib/api";
 import { isTokenExpired } from "../utils/auth";
 import { LogoLoading } from "../components/Loading";
+import { Nota } from "./types";
 
 dayjs.extend(customParseFormat);
 dayjs.extend(timezone);
 dayjs.extend(utc);
 
-interface Nota {
-  id: string;
-  invoiceXML: string;
-  serviceProvider: string;
-  dateOfCompetence: string; // "dd-MM-yyyy"
-  serviceRecipient: string;
-  service: {
-    values: {
-      otherWithholdingsValue: number;
-      otherWithholdingsRetained: boolean;
-    };
-    discrimination: string;
-    codigoNbs: string;
-    municipalCode: string;
-    enforceabilityofISS: boolean;
-    municipalityIncidence: string;
-    serviceItemList: {
-      itemListService: string;
-      cnaeCode: string;
-      description: string;
-      taxable: boolean;
-      quantity: number;
-      discount: number;
-      unitValue: number;
-      netValue: number;
-    }[];
-  };
-  value: number;
-  createdAt: {
-    _seconds: number;
-    _nanoseconds: number;
-  };
-  status: string;
-}
-
-export function Dashboard() {
+export function MyInvoices() {
   const [invoices, setInvoices] = useState<Nota[]>([]);
-  const [customers, setCustomers] = useState([]);
   const [filteredInvoices, setFilteredInvoices] = useState<Nota[]>([]);
   const [selectedYear, setSelectedYear] = useState<string>(
     dayjs().year().toString()
@@ -69,15 +33,9 @@ export function Dashboard() {
   const loadInvoices = async () => {
     setLoading(true);
     try {
-      if (user.role === "customer") {
+      if (user.role === "user" || user.role === "admin") {
         const data = await api.getInvoicesForCustomer();
         setInvoices(data);
-      }
-      if (user.role === "user") {
-        const data = await api.getInvoices();
-        setInvoices(data);
-        const customersData = await api.getAllCustomers();
-        setCustomers(customersData);
       }
     } catch (error) {
       toast.error("Erro ao carregar notas.");
@@ -167,7 +125,6 @@ export function Dashboard() {
 
   if (loading) return <LogoLoading size={100} text="Carregando..." />;
 
-
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
       {/* Filtro de Ano/Mês */}
@@ -206,52 +163,6 @@ export function Dashboard() {
         </button>
       </div>
 
-      {/* Cards resumidos */}
-      {user.role === "user" ? (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white p-6 rounded-2xl shadow flex items-center gap-4">
-            <div className="p-3 bg-blue-200 rounded-full">
-              <Receipt className="w-6 h-6 text-blue-700" />
-            </div>
-            <div>
-              <p className="text-xs text-gray-600">Notas no mês</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {filteredInvoices.length}
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-2xl shadow flex items-center gap-4">
-            <div className="p-3 bg-green-200 rounded-full">
-              <FileText className="w-6 h-6 text-green-700" />
-            </div>
-            <div>
-              <p className="text-xs text-gray-600">Total emitido</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {totalMonthValue.toLocaleString("pt-BR", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-2xl shadow flex items-center gap-4">
-            <div className="p-3 bg-purple-200 rounded-full">
-              <Users className="w-6 h-6 text-purple-700" />
-            </div>
-
-            <div>
-              <p className="text-xs text-gray-600">Clientes</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {customers.length}
-              </p>
-            </div>
-          </div>
-        </div>
-      ) : (
-        ""
-      )}
       {/* Tabela de Notas */}
       <div className="bg-white p-6 rounded-2xl shadow overflow-x-auto">
         <table className="w-full text-sm">

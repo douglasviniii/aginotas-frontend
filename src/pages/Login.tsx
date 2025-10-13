@@ -30,7 +30,7 @@ export function Login() {
         });
         localStorage.setItem("user", JSON.stringify(data.user));
         toast.success("Login realizado com sucesso!");
-        navigate("/dashboard");
+        navigate("/financial");
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao fazer login");

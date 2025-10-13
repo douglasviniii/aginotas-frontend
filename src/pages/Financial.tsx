@@ -514,10 +514,23 @@ export default function Financial() {
       if (userRole === "customer" && userId) {
         const customerReceivables = await api.getAllReceivablesForCustomer();
         setRecebiveis(customerReceivables);
-      } else {
-        // Se for admin ou user, busca todos os dados
+      }
+
+      if (userRole === "user" && userId) {
         const [customers, receivables, schedulings] = await Promise.all([
           api.getAllCustomers(),
+          api.getAllReceivables(),
+          api.getAllSchedulingReceivables(),
+        ]);
+
+        setClientes(customers);
+        setRecebiveis(receivables);
+        setAgendamentos(schedulings);
+      }
+
+      if (userRole === "admin" && userId) {
+        const [customers, receivables, schedulings] = await Promise.all([
+          api.getAllUsers(),
           api.getAllReceivables(),
           api.getAllSchedulingReceivables(),
         ]);
@@ -1014,7 +1027,7 @@ export default function Financial() {
                           <option value="">Selecione um cliente</option>
                           {clientes.map((c) => (
                             <option key={c.id} value={c.id}>
-                              {c.corporateName}
+                              {c.corporateName || c.name}
                             </option>
                           ))}
                         </select>
@@ -1101,7 +1114,7 @@ export default function Financial() {
                   </div>
 
                   {/* Checkbox para emissão de nota fiscal */}
-{/*                   <div className="mt-6">
+                  {/*                   <div className="mt-6">
                     <label className="flex items-center space-x-3">
                       <input
                         type="checkbox"
@@ -1560,7 +1573,7 @@ export default function Financial() {
                           <option value="">Selecione um cliente</option>
                           {clientes.map((c) => (
                             <option key={c.id} value={c.id}>
-                              {c.corporateName}
+                              {c.corporateName || c.name}
                             </option>
                           ))}
                         </select>
@@ -1806,7 +1819,7 @@ export default function Financial() {
                               Nome
                             </label>
                             <div className="mt-1 p-3 bg-gray-50 rounded-xl border border-gray-200">
-                              {cliente.corporateName}
+                              {cliente.corporateName || cliente.name}
                             </div>
                           </div>
 
@@ -1824,7 +1837,13 @@ export default function Financial() {
                               Documento
                             </label>
                             <div className="mt-1 p-3 bg-gray-50 rounded-xl border border-gray-200">
-                              {`${cliente.document.type}: ${cliente.document.number}`}
+                              {`${
+                                cliente.document?.type ||
+                                cliente.enterprise?.document?.type
+                              }: ${
+                                cliente.document?.number ||
+                                cliente.enterprise?.document?.number
+                              }`}
                             </div>
                           </div>
                         </div>

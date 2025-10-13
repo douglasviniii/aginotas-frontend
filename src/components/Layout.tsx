@@ -15,6 +15,7 @@ import {
   Settings,
   User2,
   NotepadText,
+  Inbox,
 } from "lucide-react";
 import Cookies from "js-cookie";
 import { api } from "../lib/api";
@@ -100,32 +101,7 @@ export function Layout() {
       { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
       { icon: NotepadText, label: "Financeiro", path: "/financial" },
       { icon: Users, label: "Clientes", path: "/customers" },
-      { icon: MessageSquare, label: "Chat com Suporte", path: "/chat" },
-      { icon: CreditCard, label: "Assinaturas", path: "/subscriptions" },
-      { icon: Settings, label: "Configurações", path: "/UserConfig" },
-    ],
-    "Plano Prata": [
-      { icon: User2, label: `Olá, ${userData.name}. Seja bem vindo!🥈` },
-      { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-      { icon: Users, label: "Clientes", path: "/customers" },
-      { icon: MessageSquare, label: "Chat com Suporte", path: "/chat" },
-      { icon: CreditCard, label: "Assinaturas", path: "/subscriptions" },
-      { icon: Settings, label: "Configurações", path: "/UserConfig" },
-    ],
-    "Plano Ouro": [
-      { icon: User2, label: `Olá, ${userData.name}. Seja bem vindo!🥇` },
-      { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-      { icon: NotepadText, label: "Financeiro", path: "/financial" },
-      { icon: Users, label: "Clientes", path: "/customers" },
-      { icon: MessageSquare, label: "Chat com Suporte", path: "/chat" },
-      { icon: CreditCard, label: "Assinaturas", path: "/subscriptions" },
-      { icon: Settings, label: "Configurações", path: "/UserConfig" },
-    ],
-    "Plano Diamante": [
-      { icon: User2, label: `Olá, ${userData.name}. Seja bem vindo!💎` },
-      { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-      { icon: NotepadText, label: "Financeiro", path: "/financial" },
-      { icon: Users, label: "Clientes", path: "/customers" },
+      { icon: Inbox, label: "Fiscal", path: "/my-invoices" },
       { icon: MessageSquare, label: "Chat com Suporte", path: "/chat" },
       { icon: CreditCard, label: "Assinaturas", path: "/subscriptions" },
       { icon: Settings, label: "Configurações", path: "/UserConfig" },
@@ -152,6 +128,10 @@ export function Layout() {
     // Acesso para Administrador
     navItems = [
       { icon: User2, label: `Olá, ${userData.name}. Seja bem vindo!` },
+      { icon: LayoutDashboard, label: "Dashboard", path: "/main-dashboard" },
+      { icon: NotepadText, label: "Financeiro", path: "/financial" },
+      { icon: Users, label: "Usuários", path: "/users" },
+      { icon: Inbox, label: "Fiscal", path: "/my-invoices" },
       { icon: MessageSquare, label: "Chat com Suporte", path: "/chat" },
       { icon: Settings, label: "Configurações", path: "/UserConfig" },
     ];
