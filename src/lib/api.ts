@@ -497,6 +497,17 @@ export const api = {
     return response.json();
   },
 
+  async getLastInvoice() {
+    const response = await fetch(`${API_URL}/invoice/last-invoice`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${Cookies.get("token")}`,
+      },
+    });
+    return response.json();
+  },  
+
   //--------------------------------
 
   async create_subscription_user(data: any) {

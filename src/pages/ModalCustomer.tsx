@@ -181,6 +181,33 @@ const ModalCustomer: React.FC<Props> = ({
     }
   }
 
+  async function getLastInvoice() {
+    try {
+      const lastInvoice = await api.getLastInvoice();
+      setInvoice({
+        dateOfCompetence: lastInvoice.dateOfCompetence,
+        scheduledInvoiceDay: lastInvoice.scheduledInvoiceDay,
+        dueDate: lastInvoice.dueDate,
+        service: {
+          values: {
+            otherWithholdingsValue: lastInvoice.service.values.otherWithholdingsValue,
+            otherWithholdingsRetained: lastInvoice.service.values.otherWithholdingsRetained,
+          },
+          discrimination: lastInvoice.service.discrimination,
+          codigoNbs: lastInvoice.service.codigoNbs,
+          municipalCode: lastInvoice.service.municipalCode,
+          enforceabilityofISS: lastInvoice.service.enforceabilityofISS,
+          municipalityIncidence: lastInvoice.service.municipalityIncidence,
+          serviceItemList: lastInvoice.service.serviceItemList,
+        },
+        serviceRecipient: customer.id,
+        generateReceivable: lastInvoice.generateReceivable,
+      });
+    } catch (error) {
+      toast.error("Por favor, tente novamente!");
+    }
+  }
+
   const userPlan = subscriptionUser?.items?.data?.[0]?.price?.product?.name;
   const allTabs = [
     {
@@ -516,7 +543,14 @@ const ModalCustomer: React.FC<Props> = ({
               <h2 className="text-lg font-semibold">
                 Emitir Nota Avulsa para: {customer.corporateName}
               </h2>
-
+              <button
+                onClick={() => {
+                  getLastInvoice();
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                Última nota
+              </button>
               {/* Data de Competência */}
               <div>
                 <label className="block text-sm font-medium text-gray-700">
