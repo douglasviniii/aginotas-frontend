@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { CustomerType, User } from "./types";
 import { api } from "../lib/api";
 import { toast } from "sonner";
+import { LogoLoading } from "../components/Loading";
 
 interface Props {
   selectedCustomer: CustomerType;
@@ -153,7 +154,6 @@ const ModalCustomer: React.FC<Props> = ({
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-
       toast.success("PDF baixado com sucesso!");
     } catch (error) {
       console.error("Erro ao baixar PDF:", error);
