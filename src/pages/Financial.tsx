@@ -154,7 +154,11 @@ export default function Financial() {
               </div>
               <div class="total">
                 Total em Recebíveis: R$ ${recebiveis
-                  .filter((recebivel) => filtrarPorData(recebivel))
+                  .filter(
+                    (recebivel) =>
+                      filtrarPorData(recebivel) &&
+                      recebivel.status !== "canceled"
+                  )
                   .reduce((acc, r) => acc + r.value, 0)
                   .toLocaleString("pt-BR", {
                     minimumFractionDigits: 2,
@@ -755,6 +759,8 @@ export default function Financial() {
     );
   }
 
+  console.log(recebiveis);
+
   /*   if (planName === "Plano Bronze" || planName === "Plano Prata") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -794,7 +800,11 @@ export default function Financial() {
                 <p className="text-2xl font-bold text-white">
                   R${" "}
                   {recebiveis
-                    .filter((recebivel) => filtrarPorData(recebivel))
+                    .filter(
+                      (recebivel) =>
+                        filtrarPorData(recebivel) &&
+                        recebivel.status !== "canceled"
+                    )
                     .reduce((acc, r) => acc + r.value, 0)
                     .toLocaleString("pt-BR", {
                       minimumFractionDigits: 2,
@@ -912,7 +922,11 @@ export default function Financial() {
                         <p className="text-3xl font-bold mt-2">
                           R${" "}
                           {recebiveis
-                            .filter((recebivel) => filtrarPorData(recebivel))
+                            .filter(
+                              (recebivel) =>
+                                filtrarPorData(recebivel) &&
+                                recebivel.status !== "canceled"
+                            )
                             .reduce((acc, r) => acc + r.value, 0)
                             .toLocaleString("pt-BR", {
                               minimumFractionDigits: 2,
@@ -1710,64 +1724,143 @@ export default function Financial() {
                     Recebíveis Gerados
                   </h2>
 
-                  {recebiveis.length === 0 ? (
-                    <div className="text-center py-12 text-gray-500">
-                      <DollarSign className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                      <p className="text-lg">Nenhum recebível gerado.</p>
-                      <p className="text-sm">
-                        Comece gerando seu primeiro recebível!
-                      </p>
+                  <div className="space-y-6">
+                    {/* Filtro de Cliente */}
+                    <div className="bg-white p-6 rounded-xl border border-gray-200">
+                      <label className="block text-sm font-medium text-gray-700 mb-3">
+                        Filtrar por Cliente
+                      </label>
+                      <select
+                        className="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
+                        value={clienteSelecionadoGerar || ""}
+                        onChange={(e) => {
+                          const selectedValue = e.target.value;
+                          setClienteSelecionadoGerar(selectedValue);
+                          setInvoice({
+                            ...invoice,
+                            serviceRecipient: selectedValue,
+                          });
+                        }}
+                      >
+                        <option value="">Todos os clientes</option>
+                        {clientes.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.corporateName || c.name}
+                          </option>
+                        ))}
+                      </select>
                     </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {recebiveis.map((r) => (
-                        <div
-                          key={r.id}
-                          className="flex items-center justify-between p-4 border border-gray-200 rounded-xl hover:border-blue-300 transition-colors group"
-                        >
-                          <div className="flex items-center space-x-4">
-                            <div
-                              className={`p-2 rounded-lg ${
-                                getStatusColor(r.status).split(" ")[1]
-                              }`}
-                            >
-                              {getStatusIcon(r.status)}
-                            </div>
-                            <div>
-                              <p className="font-semibold text-gray-900">
-                                R${" "}
-                                {r.value.toLocaleString("pt-BR", {
-                                  minimumFractionDigits: 2,
-                                  maximumFractionDigits: 2,
-                                })}
-                              </p>
-                              <p className="text-sm text-gray-600">
-                                {r.description}
-                              </p>
-                              <div className="flex items-center space-x-3 mt-1">
-                                <span
-                                  className={`text-xs px-2 py-1 rounded-full ${getStatusColor(
-                                    r.status
-                                  )}`}
-                                >
-                                  {r.status}
-                                </span>
-                                <span className="text-xs text-gray-500">
-                                  {r.type}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                          <button
-                            className="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors font-medium opacity-0 group-hover:opacity-100"
-                            onClick={() => abrirModal(r)}
-                          >
-                            Gerenciar
-                          </button>
+
+                    {/* Lista de Recebíveis */}
+                    {recebiveis.length === 0 ? (
+                      <div className="text-center py-12 text-gray-500 bg-white rounded-xl border border-gray-200">
+                        <DollarSign className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                        <p className="text-lg font-medium text-gray-600 mb-2">
+                          {clienteSelecionadoGerar
+                            ? "Nenhum recebível encontrado para este cliente"
+                            : "Nenhum recebível gerado"}
+                        </p>
+                        <p className="text-sm text-gray-400">
+                          {clienteSelecionadoGerar
+                            ? "Tente selecionar outro cliente ou gerar novos recebíveis"
+                            : "Comece gerando seu primeiro recebível!"}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {/* Contador de resultados */}
+                        <div className="flex justify-between items-center px-2">
+                          <p className="text-sm text-gray-600">
+                            {clienteSelecionadoGerar
+                              ? `Mostrando recebíveis do cliente selecionado`
+                              : "Mostrando todos os recebíveis"}
+                          </p>
+                          <span className="text-xs bg-blue-100 text-blue-600 px-3 py-1 rounded-full">
+                            {recebiveis.length}{" "}
+                            {recebiveis.length === 1
+                              ? "recebível"
+                              : "recebíveis"}
+                          </span>
                         </div>
-                      ))}
-                    </div>
-                  )}
+
+                        {/* Lista de recebíveis filtrados */}
+                        {recebiveis
+                          .filter(
+                            (r) =>
+                              !clienteSelecionadoGerar ||
+                              r.serviceRecipient === clienteSelecionadoGerar
+                          )
+                          .map((r) => (
+                            <div
+                              key={r.id}
+                              className="flex items-center justify-between p-6 bg-white border border-gray-200 rounded-xl hover:border-blue-300 hover:shadow-sm transition-all duration-200 group"
+                            >
+                              <div className="flex items-center space-x-4 flex-1">
+                                <div
+                                  className={`p-3 rounded-xl ${
+                                    getStatusColor(r.status).split(" ")[1]
+                                  }`}
+                                >
+                                  {getStatusIcon(r.status)}
+                                </div>
+
+                                <div className="flex-1">
+                                  <div className="flex items-center justify-between">
+                                    <p className="font-semibold text-gray-900 text-lg">
+                                      R${" "}
+                                      {r.value.toLocaleString("pt-BR", {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2,
+                                      })}
+                                    </p>
+                                    <span className="text-sm text-gray-500">
+                                      {new Date(
+                                        r.createdAt._seconds * 1000
+                                      ).toLocaleDateString("pt-BR")}
+                                    </span>
+                                  </div>
+
+                                  <p className="text-gray-600 mt-1">
+                                    {r.description}
+                                  </p>
+
+                                  <div className="flex items-center space-x-3 mt-2">
+                                    <span
+                                      className={`text-xs px-3 py-1 rounded-full font-medium ${getStatusColor(
+                                        r.status
+                                      )}`}
+                                    >
+                                      {r.status}
+                                    </span>
+                                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                                      {r.type}
+                                    </span>
+                                    {r.serviceRecipient && (
+                                      <span className="text-xs text-gray-400">
+                                        Cliente:{" "}
+                                        {clientes.find(
+                                          (c) => c.id === r.serviceRecipient
+                                        )?.corporateName ||
+                                          clientes.find(
+                                            (c) => c.id === r.serviceRecipient
+                                          )?.name}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+
+                              <button
+                                className="px-5 py-2.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors font-medium opacity-100 lg:opacity-0 lg:group-hover:opacity-100 border border-blue-100"
+                                onClick={() => abrirModal(r)}
+                              >
+                                Gerenciar
+                              </button>
+                            </div>
+                          ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </Tabs.Content>
             </Tabs.Root>

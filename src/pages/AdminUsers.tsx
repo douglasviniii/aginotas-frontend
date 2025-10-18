@@ -199,7 +199,7 @@ export function AdminUsers() {
               <div className="flex justify-between items-center mb-3">
                 <div>
                   <h3 className="text-gray-900 font-semibold text-base">
-                    {customer.corporateName}
+                    {customer.corporateName || customer.name}
                   </h3>
                   <p className="text-sm text-gray-500">
                     {customer.enterprise.document.number}
