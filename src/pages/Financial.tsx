@@ -226,6 +226,7 @@ export default function Financial() {
     const cliente = clientes.find(
       (c) => c.id === recebivelSelecionado.serviceRecipient
     );
+
     const janelaImpressao = window.open("", "_blank");
     if (janelaImpressao) {
       janelaImpressao.document.write(`
@@ -253,15 +254,17 @@ export default function Financial() {
             <div class="section">
               <h3>Informações do Cliente</h3>
               <div class="info"><strong>Nome:</strong> ${
-                cliente?.corporateName || "N/A"
+                cliente?.corporateName || cliente?.name
               }</div>
               <div class="info"><strong>Email:</strong> ${
                 cliente?.email || "N/A"
               }</div>
               <div class="info"><strong>Documento:</strong> ${
-                cliente
+                cliente?.enterprise?.document?.number
+                  ? `${cliente.enterprise.document.type}: ${cliente.enterprise.document.number}`
+                  : cliente?.document?.number
                   ? `${cliente.document.type}: ${cliente.document.number}`
-                  : "N/A"
+                  : ""
               }</div>
             </div>
             
@@ -758,8 +761,6 @@ export default function Financial() {
       </div>
     );
   }
-
-  console.log(recebiveis);
 
   /*   if (planName === "Plano Bronze" || planName === "Plano Prata") {
     return (
@@ -1776,8 +1777,18 @@ export default function Financial() {
                               : "Mostrando todos os recebíveis"}
                           </p>
                           <span className="text-xs bg-blue-100 text-blue-600 px-3 py-1 rounded-full">
-                            {recebiveis.length}{" "}
-                            {recebiveis.length === 1
+                            {
+                              recebiveis.filter(
+                                (r) =>
+                                  !clienteSelecionadoGerar ||
+                                  r.serviceRecipient === clienteSelecionadoGerar
+                              ).length
+                            }{" "}
+                            {recebiveis.filter(
+                              (r) =>
+                                !clienteSelecionadoGerar ||
+                                r.serviceRecipient === clienteSelecionadoGerar
+                            ).length === 1
                               ? "recebível"
                               : "recebíveis"}
                           </span>
