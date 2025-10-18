@@ -66,7 +66,7 @@ const ModalCustomer: React.FC<Props> = ({
       serviceItemList: user?.enterprise.economicActivity || [], // pego do usuário
     },
     serviceRecipient: customer.id || "",
-    generateReceivable: false,
+    generateReceivable: true,
   });
 
   function formatarInputReais(valor: number) {
